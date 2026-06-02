@@ -8,5 +8,5 @@ export default defineConfig({
     tailwindcss(),
   ],
   // 👇 IMPORTANTE para GitHub Pages
-  base: '/Portafolio/',
+  base: '/',
 })
