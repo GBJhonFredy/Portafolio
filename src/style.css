@@ -1,0 +1,224 @@
+@import 'tailwindcss';
+
+:root {
+  --color-primario: #0ea5e9;
+  --color-secundario: #8b5cf6;
+  --fondo-oscuro: #0f172a;
+  --neon: #00d4ff;
+  --acento: #10b981;
+  --texto: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at 20% 10%, rgba(14, 165, 233, 0.2), transparent 45%),
+    radial-gradient(circle at 80% 0%, rgba(139, 92, 246, 0.16), transparent 35%), var(--fondo-oscuro);
+  color: var(--texto);
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+html:not(.dark) body {
+  --fondo-oscuro: #e2e8f0;
+  --texto: #0f172a;
+  background: radial-gradient(circle at 20% 10%, rgba(14, 165, 233, 0.08), transparent 45%),
+    radial-gradient(circle at 80% 0%, rgba(139, 92, 246, 0.08), transparent 35%), #f8fafc;
+}
+
+.app-principal {
+  position: relative;
+  z-index: 2;
+}
+
+.fondo-particulas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.encabezado {
+  backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--fondo-oscuro) 78%, transparent);
+}
+
+.titulo-seccion {
+  display: inline-flex;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  position: relative;
+}
+
+.titulo-seccion::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -0.35rem;
+  width: 100%;
+  height: 0.15rem;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--color-primario), var(--neon));
+}
+
+.glitch {
+  position: relative;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.38);
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.glitch::before {
+  color: rgba(14, 165, 233, 0.7);
+  transform: translateX(2px);
+  clip-path: polygon(0 2%, 100% 0, 100% 34%, 0 36%);
+}
+
+.glitch::after {
+  color: rgba(139, 92, 246, 0.7);
+  transform: translateX(-2px);
+  clip-path: polygon(0 62%, 100% 64%, 100% 100%, 0 100%);
+}
+
+.typewriter {
+  border-right: 2px solid var(--neon);
+  white-space: normal;
+  min-height: 3.5rem;
+  animation: parpadeo 0.7s steps(1) infinite;
+}
+
+@keyframes parpadeo {
+  50% {
+    border-color: transparent;
+  }
+}
+
+.boton-neon {
+  border: 1px solid rgba(0, 212, 255, 0.32);
+  background: linear-gradient(130deg, rgba(14, 165, 233, 0.2), rgba(139, 92, 246, 0.2));
+  color: #e0f2fe;
+  padding: 0.7rem 1rem;
+  border-radius: 0.8rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 18px rgba(0, 212, 255, 0.22);
+}
+
+.boton-neon:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 22px rgba(0, 212, 255, 0.35);
+}
+
+.chip {
+  border: 1px solid rgba(14, 165, 233, 0.28);
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  color: #bae6fd;
+}
+
+html:not(.dark) .chip {
+  background: rgba(255, 255, 255, 0.82);
+  color: #0369a1;
+}
+
+.card-vidrio {
+  --rot-x: 0deg;
+  --rot-y: 0deg;
+  border-radius: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.12), rgba(15, 23, 42, 0.16));
+  backdrop-filter: blur(12px);
+  transform: perspective(950px) rotateX(var(--rot-x)) rotateY(var(--rot-y));
+  transform-style: preserve-3d;
+  transition: transform 0.16s ease, border-color 0.2s ease;
+}
+
+.card-vidrio:hover {
+  border-color: rgba(0, 212, 255, 0.38);
+}
+
+.barra-habilidad {
+  width: 100%;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.2);
+  overflow: hidden;
+}
+
+.barra-habilidad > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-primario), var(--acento));
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.35);
+}
+
+.input-chat {
+  width: 100%;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.55);
+  color: #e2e8f0;
+  padding: 0.7rem 0.9rem;
+}
+
+.input-chat::placeholder {
+  color: #94a3b8;
+}
+
+.mensaje-chat {
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  background: rgba(30, 41, 59, 0.58);
+}
+
+.boton-whatsapp {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 25;
+  border-radius: 999px;
+  background: #25d366;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 0 18px rgba(37, 211, 102, 0.35);
+}
+
+.cursor-personalizado {
+  position: fixed;
+  top: -12px;
+  left: -12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 212, 255, 0.8);
+  pointer-events: none;
+  z-index: 30;
+  mix-blend-mode: screen;
+}
+
+@media (max-width: 768px) {
+  .cursor-personalizado {
+    display: none;
+  }
+}
