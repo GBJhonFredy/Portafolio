@@ -6,7 +6,7 @@
     <div class="absolute inset-0 -z-20">
       <div
         class="w-full h-full bg-cover bg-center bg-container-image"
-        style="background-image: url('/app/public/wallpapers/xp-bliss.avif');"
+        style="background-image: url('app/public/wallpapers/xp-bliss.avif');"
       ></div>
       <div class="absolute inset-0 bg-sky-900/20 mix-blend-multiply"></div>
     </div>
