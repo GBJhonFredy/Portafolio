@@ -152,7 +152,7 @@ const onMouseDown = (event) => {
   window.addEventListener('mousemove', onMouseMove);
   window.addEventListener('mouseup', onMouseUp);
 };
-
+ 
 onMounted(() => {
   centerWindow();
 });

@@ -178,4 +178,4 @@ const toggleMaximize = () => {
     posY.value = savedPosY.value;
   }
 };
-</script>
+</script> 

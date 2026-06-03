@@ -103,7 +103,6 @@
 <script setup>
 import {
   ref,
-  onMounted,
   onBeforeUnmount,
   computed,
 } from 'vue';
@@ -113,8 +112,8 @@ const emit = defineEmits(['close', 'minimize', 'open-music']);
 
 /* ---------- DRAG + MAXIMIZAR/RESTAURAR ---------- */
 
-const posX = ref(40);  // pequeño offset para que no quede exactamente encima
-const posY = ref(40);
+const posX = ref(0);
+const posY = ref(0);
 const isDragging = ref(false);
 let startMouseX = 0;
 let startMouseY = 0;
@@ -153,8 +152,6 @@ const windowStyle = computed(() => {
 });
 
 const centerWindow = () => {
-  posX.value = 40;
-  posY.value = 40;
   savedWidth.value = '600px';
   savedHeight.value = '300px';
 };
@@ -189,10 +186,6 @@ const onMouseDown = (event) => {
   window.addEventListener('mouseup', onMouseUp);
 };
 
-onMounted(() => {
-  centerWindow();
-});
-
 onBeforeUnmount(() => {
   window.removeEventListener('mousemove', onMouseMove);
   window.removeEventListener('mouseup', onMouseUp);
@@ -211,4 +204,4 @@ const toggleMaximize = () => {
     posY.value = savedPosY.value;
   }
 };
-</script>
+</script> 

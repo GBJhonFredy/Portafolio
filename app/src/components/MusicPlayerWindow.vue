@@ -44,25 +44,22 @@
         </div>
       </div>
 
-      <!-- Contenido: lista + reproductor -->
-      <div class="flex flex-col bg-white min-w-[360px] max-w-[720px]">
+      <!-- Contenido (se adapta al tamaño de la ventana) -->
+      <div
+        class="flex flex-col bg-white"
+        :class="isMaximized ? 'w-full h-[calc(100%-0px)]' : 'w-[640px] h-[380px] max-w-[90vw] max-h-[80vh]'"
+      >
         <!-- Encabezado -->
         <div class="px-4 py-2 border-b border-slate-200 flex items-center justify-between text-xs md:text-sm">
-          <div>
-            <p class="font-semibold text-slate-800">
+          <div class="min-w-0">
+            <p class="font-semibold text-slate-800 truncate">
               Tus canciones favoritas (Me gusta)
             </p>
             <p class="text-[11px] text-slate-500">
-              Usando la API de Spotify con tu access token.
+              Haz clic en una fila para abrir la canción directamente en Spotify.
             </p>
           </div>
           <div class="flex flex-col items-end gap-1">
-            <button
-              class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-[11px] text-white"
-              @click="connectSpotify"
-            >
-              Conectar con Spotify
-            </button>
             <div class="text-[10px] text-slate-500">
               <span v-if="isLoading">Cargando canciones...</span>
               <span v-else-if="tracks.length">{{ tracks.length }} canciones</span>
@@ -79,8 +76,8 @@
           {{ errorMessage }}
         </div>
 
-        <!-- Lista de canciones -->
-        <div class="flex-1 max-h-[260px] overflow-auto">
+        <!-- Lista de canciones (Me gusta de Spotify) -->
+        <div class="flex-1 overflow-auto">
           <table class="w-full text-xs md:text-sm">
             <thead class="bg-slate-100 border-b border-slate-200">
               <tr class="text-left text-[11px] text-slate-500">
@@ -95,20 +92,14 @@
                 v-for="(track, index) in tracks"
                 :key="track.id"
                 class="border-b border-slate-100 cursor-pointer hover:bg-sky-50"
-                :class="track.id === currentTrackId ? 'bg-sky-100/70' : ''"
-                @dblclick="playTrack(track.id)"
+                @click="openInSpotify(track)"
               >
                 <td class="px-3 py-1 text-[11px] text-slate-500">
-                  <span v-if="track.id !== currentTrackId">
-                    {{ index + 1 }}
-                  </span>
-                  <span v-else>
-                    ▶
-                  </span>
+                  {{ index + 1 }}
                 </td>
                 <td class="px-3 py-1">
                   <div class="flex flex-col">
-                    <span class="text-[11px] md:text-xs text-slate-900">
+                    <span class="text-[11px] md:text-xs text-slate-900 underline decoration-sky-400/70">
                       {{ track.title }}
                     </span>
                     <span class="text-[10px] text-slate-500 md:hidden">
@@ -134,64 +125,10 @@
           </div>
         </div>
 
-        <!-- Reproductor (solo estado, aún sin audio real) -->
-        <div class="border-t border-slate-200 bg-slate-50 px-4 py-2 flex items-center justify-between gap-4">
-          <div class="flex-1 min-w-0">
-            <p class="text-[11px] text-slate-500">
-              Reproduciendo ahora:
-            </p>
-            <p class="text-[12px] font-semibold text-slate-800 truncate">
-              <span v-if="currentTrack">
-                {{ currentTrack.title }}
-              </span>
-              <span v-else>
-                Ninguna canción seleccionada
-              </span>
-            </p>
-            <p class="text-[11px] text-slate-500 truncate">
-              <span v-if="currentTrack">
-                {{ currentTrack.artist }}
-              </span>
-              <span v-else>
-                Haz doble clic en una canción para seleccionarla
-              </span>
-            </p>
-          </div>
-
-          <!-- Controles -->
-          <div class="flex items-center gap-2">
-            <button
-              class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-200 hover:bg-slate-300 text-[12px]"
-              title="Anterior"
-              @click="prevTrack"
-            >
-              ⏮
-            </button>
-            <button
-              class="w-9 h-9 flex items-center justify-center rounded-full bg-emerald-500 hover:bg-emerald-400 text-[14px] text-white font-bold"
-              :title="isPlaying ? 'Pausar' : 'Reproducir'"
-              @click="togglePlay"
-              :disabled="!currentTrack"
-            >
-              {{ isPlaying ? '⏸' : '▶' }}
-            </button>
-            <button
-              class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-200 hover:bg-slate-300 text-[12px]"
-              title="Siguiente"
-              @click="nextTrack"
-            >
-              ⏭
-            </button>
-          </div>
-        </div>
-
         <!-- Barra inferior estilo XP -->
         <div class="h-6 bg-sky-700/90 border-t border-sky-900 flex items-center px-3 text-[10px] text-sky-100">
-          <span v-if="currentTrack">
-            Mostrando tus Me gusta desde Spotify (solo datos, sin audio aún).
-          </span>
-          <span v-else>
-            Conecta con Spotify y recarga el token si es necesario.
+          <span>
+            Cada fila abre la canción original en Spotify (web o app), usando la URL oficial.
           </span>
         </div>
       </div>
@@ -207,7 +144,6 @@ import {
   onBeforeUnmount,
 } from 'vue';
 import {
-  getSpotifyAuthUrl,
   fetchLikedTracks,
 } from '../services/spotify.js';
 
@@ -215,20 +151,23 @@ const emit = defineEmits(['close', 'minimize']);
 
 /* ---------- VENTANA: DRAG + MAXIMIZAR/RESTAURAR ---------- */
 
-const posX = ref(60);
-const posY = ref(60);
+// posición relativa dentro del viewport
+const posX = ref(0);
+const posY = ref(0);
 const isDragging = ref(false);
 let startMouseX = 0;
 let startMouseY = 0;
 let startPosX = 0;
 let startPosY = 0;
 
+// estado maximizado
 const isMaximized = ref(false);
 const savedPosX = ref(0);
 const savedPosY = ref(0);
 const savedWidth = ref('640px');
 const savedHeight = ref('380px');
 
+// estilo aplicado al contenedor de la ventana
 const windowStyle = computed(() => {
   if (isMaximized.value) {
     return {
@@ -241,17 +180,9 @@ const windowStyle = computed(() => {
   return {
     width: savedWidth.value,
     height: savedHeight.value,
-    maxWidth: '900px',
     transform: `translate(${posX.value}px, ${posY.value}px)`,
   };
 });
-
-const centerWindow = () => {
-  posX.value = 60;
-  posY.value = 60;
-  savedWidth.value = '640px';
-  savedHeight.value = '380px';
-};
 
 const onMouseMove = (event) => {
   if (!isDragging.value || isMaximized.value) return;
@@ -284,7 +215,6 @@ const onMouseDown = (event) => {
 };
 
 onMounted(() => {
-  centerWindow();
   loadLikedTracks();
 });
 
@@ -295,27 +225,26 @@ onBeforeUnmount(() => {
 
 const toggleMaximize = () => {
   if (!isMaximized.value) {
+    // guardar posición actual para restaurar luego
     savedPosX.value = posX.value;
     savedPosY.value = posY.value;
     isMaximized.value = true;
   } else {
+    // restaurar posición y tamaño anteriores
     isMaximized.value = false;
     posX.value = savedPosX.value;
     posY.value = savedPosY.value;
   }
 };
 
+savedWidth.value = '640px';
+savedHeight.value = '380px';
+
 /* ---------- DATOS DE CANCIONES DESDE SPOTIFY ---------- */
 
 const tracks = ref([]);
-const currentTrackId = ref(null);
-const isPlaying = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref('');
-
-const currentTrack = computed(() =>
-  tracks.value.find((t) => t.id === currentTrackId.value) || null
-);
 
 const loadLikedTracks = async () => {
   isLoading.value = true;
@@ -323,12 +252,6 @@ const loadLikedTracks = async () => {
   try {
     const result = await fetchLikedTracks(20);
     tracks.value = result;
-
-    if (tracks.value.length > 0) {
-      currentTrackId.value = tracks.value[0].id;
-    } else {
-      currentTrackId.value = null;
-    }
   } catch (err) {
     console.error(err);
     errorMessage.value =
@@ -338,57 +261,16 @@ const loadLikedTracks = async () => {
   }
 };
 
-/* ---------- LÓGICA DEL REPRODUCTOR (solo estado) ---------- */
+savedWidth.value = '640px';
+savedHeight.value = '380px';
 
-const playTrack = (id) => {
-  currentTrackId.value = id;
-  isPlaying.value = true;
-};
+/* ---------- ABRIR CANCIÓN EN SPOTIFY ---------- */
 
-const togglePlay = () => {
-  if (!currentTrack.value) return;
-  isPlaying.value = !isPlaying.value;
-};
-
-const nextTrack = () => {
-  if (tracks.value.length === 0) return;
-
-  if (!currentTrack.value) {
-    currentTrackId.value = tracks.value[0].id;
-    isPlaying.value = true;
+const openInSpotify = (track) => {
+  if (!track.spotifyUrl) {
+    console.warn('Esta canción no tiene spotifyUrl');
     return;
   }
-
-  const currentIndex = tracks.value.findIndex(
-    (t) => t.id === currentTrackId.value
-  );
-  const nextIndex = (currentIndex + 1) % tracks.value.length;
-  currentTrackId.value = tracks.value[nextIndex].id;
-  isPlaying.value = true;
+  window.open(track.spotifyUrl, '_blank');
 };
-
-const prevTrack = () => {
-  if (tracks.value.length === 0) return;
-
-  if (!currentTrack.value) {
-    currentTrackId.value = tracks.value[0].id;
-    isPlaying.value = true;
-    return;
-  }
-
-  const currentIndex = tracks.value.findIndex(
-    (t) => t.id === currentTrackId.value
-  );
-  const prevIndex =
-    (currentIndex - 1 + tracks.value.length) % tracks.value.length;
-  currentTrackId.value = tracks.value[prevIndex].id;
-  isPlaying.value = true;
-};
-
-/* ---------- CONECTAR CON SPOTIFY (por si quieres pedir otro code) ---------- */
-
-const connectSpotify = () => {
-  const url = getSpotifyAuthUrl();
-  window.location.href = url;
-};
-</script>
+</script> 

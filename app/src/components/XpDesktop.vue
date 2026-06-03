@@ -2,6 +2,22 @@
   <div
     class="relative w-screen h-screen overflow-hidden font-sans text-slate-100"
   >
+    <ShutdownScreen v-if="powerState === 'shutting-down'" />
+    <PowerOffScreen v-else-if="powerState === 'off'" @power-on="handlePowerOn" />
+    <BootLoadingScreen v-else-if="powerState === 'booting'" />
+    <RestartConfirmDialog
+      v-else-if="showRestartConfirm"
+      @confirm="confirmRestart"
+      @cancel="cancelRestart"
+    />
+    <LockScreen
+      v-else-if="isLocked"
+      @unlock="handleUnlock"
+      @restart="handleRestart"
+      @shutdown="handleShutdown"
+    />
+ 
+    <template v-else>
     <!-- FONDO XP -->
     <div class="absolute inset-0 -z-20">
       <div
@@ -179,7 +195,9 @@
         <!-- Mi PC -->
         <div
           v-if="isMyPcOpen && !isMyPcMinimized"
-          class="absolute inset-0 pointer-events-none z-10"
+          class="absolute inset-0 pointer-events-none"
+          :style="{ zIndex: getWindowZIndex('my-pc') }"
+          @mousedown="activateWindow('my-pc')"
         >
           <TerminalHero
             v-if="!hasContinuedToExplorer"
@@ -203,7 +221,9 @@
         <!-- Explorador (Mis documentos) -->
         <MyDocsExplorer
           v-if="isExplorerOpen && !isExplorerMinimized"
-          class="absolute inset-0 z-15 pointer-events-none"
+          class="absolute inset-0 pointer-events-none"
+          :style="{ zIndex: getWindowZIndex('explorer') }"
+          @mousedown="activateWindow('explorer')"
           @close="handleExplorerClose"
           @minimize="handleExplorerMinimize"
           @open-music="openMusic"
@@ -212,7 +232,9 @@
         <!-- Code Studio -->
         <CodeStudio
           v-if="isCodeOpen && !isCodeMinimized"
-          class="absolute inset-0 z-25 pointer-events-none"
+          class="absolute inset-0 pointer-events-none"
+          :style="{ zIndex: getWindowZIndex('code') }"
+          @mousedown="activateWindow('code')"
           @close="handleCodeClose"
           @minimize="handleCodeMinimize"
           @run="openBrowserWithHtml"
@@ -221,7 +243,9 @@
         <!-- Firefox Preview (para Code Studio) -->
         <BrowserWindow
           v-if="isBrowserOpen && !isBrowserMinimized"
-          class="absolute inset-0 z-30 pointer-events-none"
+          class="absolute inset-0 pointer-events-none"
+          :style="{ zIndex: getWindowZIndex('browser') }"
+          @mousedown="activateWindow('browser')"
           :html-document="browserHtml"
           @close="handleBrowserClose"
           @minimize="handleBrowserMinimize"
@@ -230,7 +254,9 @@
         <!-- Navegador XP (iframe interno) -->
         <XpBrowser
           v-if="isXpBrowserOpen && !isXpBrowserMinimized"
-          class="absolute inset-0 z-30 pointer-events-none"
+          class="absolute inset-0 pointer-events-none"
+          :style="{ zIndex: getWindowZIndex('xp-browser') }"
+          @mousedown="activateWindow('xp-browser')"
           @close="handleXpBrowserClose"
           @minimize="handleXpBrowserMinimize"
         />
@@ -238,7 +264,9 @@
         <!-- Ventana Música -->
         <MusicPlayerWindow
           v-if="isMusicOpen && !isMusicMinimized"
-          class="absolute inset-0 z-22 pointer-events-none"
+          class="absolute inset-0 pointer-events-none"
+          :style="{ zIndex: getWindowZIndex('music') }"
+          @mousedown="activateWindow('music')"
           @close="handleMusicClose"
           @minimize="handleMusicMinimize"
         />
@@ -248,36 +276,12 @@
       <div
         class="h-11 md:h-12 w-full bg-gradient-to-t from-slate-900 via-slate-800 to-slate-700 border-t border-slate-900/90 flex items-center justify-between px-2 md:px-3 shadow-[0_-4px_10px_rgba(0,0,0,0.7)] relative z-20"
       >
-        <!-- Inicio -->
-        <button
-          class="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-500 border border-emerald-700 shadow-[0_2px_6px_rgba(0,0,0,0.8)] active:translate-y-[1px] active:shadow-sm transition-all"
-        >
-          <span
-            class="inline-flex items-center justify-center w-5 h-5 rounded-md bg-sky-100/95 border border-white/80 overflow-hidden"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              class="w-4 h-4 text-sky-700"
-            >
-              <path
-                d="M4 5.5 11 4v7H4V5.5Z"
-                fill="#0ea5e9"
-              />
-              <path
-                d="M13 3.7 20 2.7V11h-7V3.7Z"
-                fill="#22d3ee"
-              />
-              <path
-                d="M4 13h7v7l-7-1.1V13Z"
-                fill="#0ea5e9"
-              />
-              <path
-                d="M13 13h7v6.3L13 18v-5Z"
-                fill="#38bdf8"
-              />
-            </svg>
-          </span>
-        </button>
+        <StartMenu
+          @open-my-pc="handleStartOpenMyPc"
+          @lock="handleLock"
+          @restart="handleRestart"
+          @shutdown="handleShutdown"
+        />
 
         <!-- Botones de ventanas abiertas -->
         <div
@@ -384,6 +388,7 @@
 
     <!-- Overlay callback de Spotify -->
     <SpotifyCallbackOverlay />
+    </template>
   </div>
 </template>
 
@@ -397,15 +402,94 @@ import BrowserWindow from './BrowserWindow.vue';
 import XpBrowser from './XpBrowser.vue';
 import MusicPlayerWindow from './MusicPlayerWindow.vue';
 import SpotifyCallbackOverlay from './SpotifyCallbackOverlay.vue';
+import StartMenu from './StartMenu.vue';
+import ShutdownScreen from './ShutdownScreen.vue';
+import PowerOffScreen from './PowerOffScreen.vue';
+import BootLoadingScreen from './BootLoadingScreen.vue';
+import LockScreen from './LockScreen.vue';
+import RestartConfirmDialog from './RestartConfirmDialog.vue';
 
 const timeText = ref('');
 let intervalId = null;
+let shutdownTimerId = null;
+let bootTimerId = null;
+
+const powerState = ref('on');
+const isLocked = ref(true);
+const showRestartConfirm = ref(false);
+const defaultBrowserHtml = '<!DOCTYPE html><html><body><h1>Vista previa vacía</h1></body></html>';
+
+const clearPowerTimers = () => {
+  if (shutdownTimerId) {
+    clearTimeout(shutdownTimerId);
+    shutdownTimerId = null;
+  }
+
+  if (bootTimerId) {
+    clearTimeout(bootTimerId);
+    bootTimerId = null;
+  }
+};
 
 const updateTime = () => {
   const now = new Date();
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
   timeText.value = `${hours}:${minutes}`;
+};
+
+const windowOrder = ref([]);
+
+const activateWindow = (key) => {
+  windowOrder.value = [
+    ...windowOrder.value.filter((item) => item !== key),
+    key,
+  ];
+};
+
+const removeWindow = (key) => {
+  windowOrder.value = windowOrder.value.filter((item) => item !== key);
+};
+
+const getWindowZIndex = (key) => {
+  const index = windowOrder.value.indexOf(key);
+  return 10 + Math.max(index, 0);
+};
+
+const browserHtml = ref(defaultBrowserHtml);
+
+const resetDesktopState = () => {
+  isMyPcOpen.value = false;
+  isMyPcMinimized.value = false;
+  hasContinuedToExplorer.value = false;
+  isExplorerOpen.value = false;
+  isExplorerMinimized.value = false;
+  isCodeOpen.value = false;
+  isCodeMinimized.value = false;
+  isBrowserOpen.value = false;
+  isBrowserMinimized.value = false;
+  isXpBrowserOpen.value = false;
+  isXpBrowserMinimized.value = false;
+  isMusicOpen.value = false;
+  isMusicMinimized.value = false;
+  windowOrder.value = [];
+  browserHtml.value = defaultBrowserHtml;
+  lastClickTimeMyPc = 0;
+  lastClickTimeFirefox = 0;
+  showRestartConfirm.value = false;
+};
+
+const beginBootSequence = () => {
+  clearPowerTimers();
+  resetDesktopState();
+  isLocked.value = true;
+  powerState.value = 'booting';
+
+  bootTimerId = setTimeout(() => {
+    powerState.value = 'on';
+    isLocked.value = true;
+    bootTimerId = null;
+  }, 5000);
 };
 
 onMounted(() => {
@@ -417,7 +501,62 @@ onBeforeUnmount(() => {
   if (intervalId) {
     clearInterval(intervalId);
   }
+
+  clearPowerTimers();
 });
+
+/* -------- MENÚ INICIO -------- */
+
+const handleStartOpenMyPc = () => {
+  isMyPcOpen.value = true;
+  isMyPcMinimized.value = false;
+  hasContinuedToExplorer.value = false;
+  activateWindow('my-pc');
+};
+
+const handleLock = () => {
+  showRestartConfirm.value = false;
+  isLocked.value = true;
+};
+
+const handleRestart = () => {
+  showRestartConfirm.value = true;
+};
+
+const cancelRestart = () => {
+  showRestartConfirm.value = false;
+};
+
+const confirmRestart = () => {
+  beginBootSequence();
+};
+
+const handleShutdown = () => {
+  if (powerState.value !== 'on') {
+    return;
+  }
+
+  clearPowerTimers();
+  resetDesktopState();
+  powerState.value = 'shutting-down';
+
+  shutdownTimerId = setTimeout(() => {
+    powerState.value = 'off';
+    shutdownTimerId = null;
+  }, 5000);
+};
+
+const handlePowerOn = () => {
+  if (powerState.value !== 'off') {
+    return;
+  }
+
+  beginBootSequence();
+};
+
+const handleUnlock = () => {
+  isLocked.value = false;
+};
 
 /* -------- MI PC -------- */
 
@@ -434,6 +573,7 @@ const handleMyPcClick = () => {
     isMyPcOpen.value = true;
     isMyPcMinimized.value = false;
     hasContinuedToExplorer.value = false;
+    activateWindow('my-pc');
   }
   lastClickTimeMyPc = now;
 };
@@ -442,6 +582,7 @@ const handleMyPcClose = () => {
   isMyPcOpen.value = false;
   isMyPcMinimized.value = false;
   hasContinuedToExplorer.value = false;
+  removeWindow('my-pc');
 };
 
 const handleMyPcMinimize = () => {
@@ -451,11 +592,13 @@ const handleMyPcMinimize = () => {
 const handleMyPcMaximize = () => {
   isMyPcOpen.value = true;
   isMyPcMinimized.value = false;
+  activateWindow('my-pc');
 };
 
 const toggleMyPcFromTaskbar = () => {
   if (isMyPcMinimized.value) {
     isMyPcMinimized.value = false;
+    activateWindow('my-pc');
   } else {
     isMyPcMinimized.value = true;
   }
@@ -473,11 +616,13 @@ const isExplorerMinimized = ref(false);
 const openExplorer = () => {
   isExplorerOpen.value = true;
   isExplorerMinimized.value = false;
+  activateWindow('explorer');
 };
 
 const handleExplorerClose = () => {
   isExplorerOpen.value = false;
   isExplorerMinimized.value = false;
+  removeWindow('explorer');
 };
 
 const handleExplorerMinimize = () => {
@@ -487,6 +632,7 @@ const handleExplorerMinimize = () => {
 const toggleExplorerFromTaskbar = () => {
   if (isExplorerMinimized.value) {
     isExplorerMinimized.value = false;
+    activateWindow('explorer');
   } else {
     isExplorerMinimized.value = true;
   }
@@ -500,11 +646,13 @@ const isCodeMinimized = ref(false);
 const openCode = () => {
   isCodeOpen.value = true;
   isCodeMinimized.value = false;
+  activateWindow('code');
 };
 
 const handleCodeClose = () => {
   isCodeOpen.value = false;
   isCodeMinimized.value = false;
+  removeWindow('code');
 };
 
 const handleCodeMinimize = () => {
@@ -514,6 +662,7 @@ const handleCodeMinimize = () => {
 const toggleCodeFromTaskbar = () => {
   if (isCodeMinimized.value) {
     isCodeMinimized.value = false;
+    activateWindow('code');
   } else {
     isCodeMinimized.value = true;
   }
@@ -523,17 +672,17 @@ const toggleCodeFromTaskbar = () => {
 
 const isBrowserOpen = ref(false);
 const isBrowserMinimized = ref(false);
-const browserHtml = ref('<!DOCTYPE html><html><body><h1>Vista previa vacía</h1></body></html>');
-
 const openBrowserWithHtml = (html) => {
   browserHtml.value = html;
   isBrowserOpen.value = true;
   isBrowserMinimized.value = false;
+  activateWindow('browser');
 };
 
 const handleBrowserClose = () => {
   isBrowserOpen.value = false;
   isBrowserMinimized.value = false;
+  removeWindow('browser');
 };
 
 const handleBrowserMinimize = () => {
@@ -543,6 +692,7 @@ const handleBrowserMinimize = () => {
 const toggleBrowserFromTaskbar = () => {
   if (isBrowserMinimized.value) {
     isBrowserMinimized.value = false;
+    activateWindow('browser');
   } else {
     isBrowserMinimized.value = true;
   }
@@ -556,11 +706,13 @@ const isXpBrowserMinimized = ref(false);
 const handleXpBrowserOpen = () => {
   isXpBrowserOpen.value = true;
   isXpBrowserMinimized.value = false;
+  activateWindow('xp-browser');
 };
 
 const handleXpBrowserClose = () => {
   isXpBrowserOpen.value = false;
   isXpBrowserMinimized.value = false;
+  removeWindow('xp-browser');
 };
 
 const handleXpBrowserMinimize = () => {
@@ -570,6 +722,7 @@ const handleXpBrowserMinimize = () => {
 const toggleXpBrowserFromTaskbar = () => {
   if (isXpBrowserMinimized.value) {
     isXpBrowserMinimized.value = false;
+    activateWindow('xp-browser');
   } else {
     isXpBrowserMinimized.value = true;
   }
@@ -596,11 +749,13 @@ const isMusicMinimized = ref(false);
 const openMusic = () => {
   isMusicOpen.value = true;
   isMusicMinimized.value = false;
+  activateWindow('music');
 };
 
 const handleMusicClose = () => {
   isMusicOpen.value = false;
   isMusicMinimized.value = false;
+  removeWindow('music');
 };
 
 const handleMusicMinimize = () => {
@@ -610,6 +765,7 @@ const handleMusicMinimize = () => {
 const toggleMusicFromTaskbar = () => {
   if (isMusicMinimized.value) {
     isMusicMinimized.value = false;
+    activateWindow('music');
   } else {
     isMusicMinimized.value = true;
   }

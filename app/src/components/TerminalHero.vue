@@ -16,7 +16,7 @@
         <span class="text-xs md:text-sm font-semibold">
           Windows PowerShell
         </span>
-
+ 
         <!-- Botones tipo Windows (min, max, close) -->
         <div class="flex items-center gap-[2px] text-[9px]">
           <!-- Min -->

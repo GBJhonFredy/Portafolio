@@ -13,7 +13,7 @@
         @mousedown="onMouseDown"
       >
         <span class="text-xs md:text-sm font-semibold">
-          Explorador de Windows
+          Explorador del Sistema
         </span>
 
         <div class="flex items-center gap-[2px] text-[9px]">
@@ -241,4 +241,4 @@ const toggleMaximize = () => {
     posY.value = savedPosY.value;
   }
 };
-</script>
+</script> 

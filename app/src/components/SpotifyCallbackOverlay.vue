@@ -58,4 +58,4 @@ const closeOverlay = () => {
   window.history.replaceState({}, '', '/');
   isCallback.value = false;
 };
-</script>
+</script> 

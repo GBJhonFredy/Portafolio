@@ -369,7 +369,7 @@ const cancelCreateFile = () => {
   showNewFilePanel.value = false;
   resetNewFileForm();
 };
-
+ 
 const createFile = () => {
   errorMessage.value = '';
 
