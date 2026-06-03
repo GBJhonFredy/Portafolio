@@ -206,6 +206,7 @@
           class="absolute inset-0 z-15 pointer-events-none"
           @close="handleExplorerClose"
           @minimize="handleExplorerMinimize"
+          @open-music="openMusic"
         />
 
         <!-- Code Studio -->
@@ -232,6 +233,14 @@
           class="absolute inset-0 z-30 pointer-events-none"
           @close="handleXpBrowserClose"
           @minimize="handleXpBrowserMinimize"
+        />
+
+        <!-- Ventana Música -->
+        <MusicPlayerWindow
+          v-if="isMusicOpen && !isMusicMinimized"
+          class="absolute inset-0 z-22 pointer-events-none"
+          @close="handleMusicClose"
+          @minimize="handleMusicMinimize"
         />
       </div>
 
@@ -333,6 +342,18 @@
           >
             Navegador XP
           </button>
+
+          <!-- Música -->
+          <button
+            v-if="isMusicOpen"
+            class="px-3 py-1.5 rounded-sm border text-[11px] md:text-xs truncate shadow-[0_1px_3px_rgba(0,0,0,0.7)]"
+            :class="isMusicMinimized
+              ? 'bg-slate-700 border-slate-500 text-slate-200'
+              : 'bg-slate-300/90 border-slate-100 text-slate-900'"
+            @click="toggleMusicFromTaskbar"
+          >
+            Música
+          </button>
         </div>
 
         <!-- Reloj -->
@@ -360,6 +381,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Overlay callback de Spotify -->
+    <SpotifyCallbackOverlay />
   </div>
 </template>
 
@@ -371,6 +395,8 @@ import MyDocsExplorer from './MyDocsExplorer.vue';
 import CodeStudio from './CodeStudio.vue';
 import BrowserWindow from './BrowserWindow.vue';
 import XpBrowser from './XpBrowser.vue';
+import MusicPlayerWindow from './MusicPlayerWindow.vue';
+import SpotifyCallbackOverlay from './SpotifyCallbackOverlay.vue';
 
 const timeText = ref('');
 let intervalId = null;
@@ -560,6 +586,33 @@ const handleFirefoxIconClick = () => {
   }
 
   lastClickTimeFirefox = now;
+};
+
+/* -------- MÚSICA / REPRODUCTOR -------- */
+
+const isMusicOpen = ref(false);
+const isMusicMinimized = ref(false);
+
+const openMusic = () => {
+  isMusicOpen.value = true;
+  isMusicMinimized.value = false;
+};
+
+const handleMusicClose = () => {
+  isMusicOpen.value = false;
+  isMusicMinimized.value = false;
+};
+
+const handleMusicMinimize = () => {
+  isMusicMinimized.value = true;
+};
+
+const toggleMusicFromTaskbar = () => {
+  if (isMusicMinimized.value) {
+    isMusicMinimized.value = false;
+  } else {
+    isMusicMinimized.value = true;
+  }
 };
 
 /* -------- ICONOS ESCRITORIO -------- */

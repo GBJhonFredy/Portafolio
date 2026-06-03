@@ -83,6 +83,7 @@
           <!-- Carpeta Música -->
           <div
             class="flex flex-col items-center gap-1 cursor-pointer select-none hover:bg-slate-100 rounded-md p-1"
+            @dblclick="$emit('open-music')"
           >
             <div
               class="w-10 h-10 flex items-center justify-center text-xl"
@@ -107,8 +108,8 @@ import {
   computed,
 } from 'vue';
 
-// declaramos los eventos que puede emitir esta ventana
-const emit = defineEmits(['close', 'minimize']);
+// ahora también puede emitir open-music
+const emit = defineEmits(['close', 'minimize', 'open-music']);
 
 /* ---------- DRAG + MAXIMIZAR/RESTAURAR ---------- */
 
