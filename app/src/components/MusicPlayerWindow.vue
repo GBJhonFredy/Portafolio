@@ -53,7 +53,7 @@
               Tus canciones favoritas (Me gusta)
             </p>
             <p class="text-[11px] text-slate-500">
-              Primero conecta con Spotify y luego cargamos tus Me gusta.
+              Usando la API de Spotify con tu access token.
             </p>
           </div>
           <div class="flex flex-col items-end gap-1">
@@ -114,12 +114,6 @@
                     <span class="text-[10px] text-slate-500 md:hidden">
                       {{ track.artist }}
                     </span>
-                    <span
-                      v-if="!track.previewUrl"
-                      class="mt-[2px] text-[9px] text-amber-500"
-                    >
-                      Sin preview disponible
-                    </span>
                   </div>
                 </td>
                 <td class="px-3 py-1 text-[11px] text-slate-600 hidden md:table-cell">
@@ -133,15 +127,14 @@
           </table>
 
           <div
-            v-if="!isLoading && tracks.length === 0"
+            v-if="!isLoading && tracks.length === 0 && !errorMessage"
             class="px-4 py-6 text-center text-[12px] text-slate-500"
           >
             No hemos podido cargar tus Me gusta todavía.
-            Pulsa en “Conectar con Spotify”, consigue un access token y recarga.
           </div>
         </div>
 
-        <!-- Reproductor -->
+        <!-- Reproductor (solo estado, aún sin audio real) -->
         <div class="border-t border-slate-200 bg-slate-50 px-4 py-2 flex items-center justify-between gap-4">
           <div class="flex-1 min-w-0">
             <p class="text-[11px] text-slate-500">
@@ -160,14 +153,8 @@
                 {{ currentTrack.artist }}
               </span>
               <span v-else>
-                Haz doble clic en una canción para reproducirla
+                Haz doble clic en una canción para seleccionarla
               </span>
-            </p>
-            <p
-              v-if="currentTrack && !currentTrack.previewUrl"
-              class="text-[10px] text-amber-500 mt-1"
-            >
-              Esta canción no tiene preview de 30s disponible en la API.
             </p>
           </div>
 
@@ -184,7 +171,7 @@
               class="w-9 h-9 flex items-center justify-center rounded-full bg-emerald-500 hover:bg-emerald-400 text-[14px] text-white font-bold"
               :title="isPlaying ? 'Pausar' : 'Reproducir'"
               @click="togglePlay"
-              :disabled="!currentTrack || !currentTrack.previewUrl"
+              :disabled="!currentTrack"
             >
               {{ isPlaying ? '⏸' : '▶' }}
             </button>
@@ -201,10 +188,10 @@
         <!-- Barra inferior estilo XP -->
         <div class="h-6 bg-sky-700/90 border-t border-sky-900 flex items-center px-3 text-[10px] text-sky-100">
           <span v-if="currentTrack">
-            Mostrando tus Me gusta desde Spotify (preview de 30s si está disponible)
+            Mostrando tus Me gusta desde Spotify (solo datos, sin audio aún).
           </span>
           <span v-else>
-            Conecta con Spotify para ver tus Me gusta
+            Conecta con Spotify y recarga el token si es necesario.
           </span>
         </div>
       </div>
@@ -298,7 +285,6 @@ const onMouseDown = (event) => {
 
 onMounted(() => {
   centerWindow();
-  // Intentamos cargar liked tracks al montar la ventana
   loadLikedTracks();
 });
 
@@ -319,7 +305,7 @@ const toggleMaximize = () => {
   }
 };
 
-/* ---------- DATOS DE CANCIONES (desde Spotify) ---------- */
+/* ---------- DATOS DE CANCIONES DESDE SPOTIFY ---------- */
 
 const tracks = ref([]);
 const currentTrackId = ref(null);
@@ -346,13 +332,13 @@ const loadLikedTracks = async () => {
   } catch (err) {
     console.error(err);
     errorMessage.value =
-      'Error al cargar tus Me gusta. Asegúrate de tener un access token válido y de haber aceptado los permisos.';
+      'Error al cargar tus Me gusta. Puede que el token haya caducado. Vuelve a generar un access token.';
   } finally {
     isLoading.value = false;
   }
 };
 
-/* ---------- LÓGICA DEL REPRODUCTOR (sin audio real todavía) ---------- */
+/* ---------- LÓGICA DEL REPRODUCTOR (solo estado) ---------- */
 
 const playTrack = (id) => {
   currentTrackId.value = id;
@@ -399,7 +385,7 @@ const prevTrack = () => {
   isPlaying.value = true;
 };
 
-/* ---------- CONECTAR CON SPOTIFY ---------- */
+/* ---------- CONECTAR CON SPOTIFY (por si quieres pedir otro code) ---------- */
 
 const connectSpotify = () => {
   const url = getSpotifyAuthUrl();
