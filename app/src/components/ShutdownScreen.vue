@@ -14,7 +14,7 @@
           <path d="M0,46 L40,46 L40,82 L0,76 L0,46 Z" fill="#00a4ef"/>
           <path d="M44,46 L88,46 L88,88 L44,83 L44,46 Z" fill="#ffb900"/>
         </svg>
-        <span class="text-4xl md:text-5xl font-bold italic tracking-tight drop-shadow-md" style="font-family: 'Franklin Gothic Medium', 'Trebuchet MS', sans-serif;">Portafolio<span class="text-[#ffb900] ml-1">XP</span></span>
+        <span class="text-4xl md:text-5xl font-bold italic tracking-tight drop-shadow-md" style="font-family: 'Franklin Gothic Medium', 'Trebuchet MS', sans-serif;">Portafolio de <span class="text-[#ffb900] ml-1">Jhon Gil</span></span>
       </div>
  
       <p class="text-xl md:text-2xl font-medium tracking-wide drop-shadow-md text-white/95">

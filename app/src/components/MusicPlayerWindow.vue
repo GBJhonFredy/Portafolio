@@ -13,7 +13,7 @@
         @mousedown="onMouseDown"
       >
         <span class="text-xs md:text-sm font-semibold">
-          Música - Tus Me gusta de Spotify
+          Música - Biblioteca del sistema
         </span>
 
         <div class="flex items-center gap-[2px] text-[9px]">
@@ -53,53 +53,55 @@
         <div class="px-4 py-2 border-b border-slate-200 flex items-center justify-between text-xs md:text-sm">
           <div class="min-w-0">
             <p class="font-semibold text-slate-800 truncate">
-              Tus canciones favoritas (Me gusta)
+              Música de Portafolio XP 
             </p>
             <p class="text-[11px] text-slate-500">
-              Haz clic en una fila para abrir la canción directamente en Spotify.
+              Canciones en formato MP3 desde la carpeta <code>public/music</code>.
             </p>
           </div>
           <div class="flex flex-col items-end gap-1">
             <div class="text-[10px] text-slate-500">
-              <span v-if="isLoading">Cargando canciones...</span>
-              <span v-else-if="tracks.length">{{ tracks.length }} canciones</span>
-              <span v-else>Sin datos aún</span>
+              {{ demoTracks.length }} canciones del sistema
             </div>
           </div>
         </div>
 
-        <!-- Mensaje de error -->
-        <div
-          v-if="errorMessage"
-          class="px-4 py-2 bg-red-50 text-[11px] text-red-700 border-b border-red-200"
-        >
-          {{ errorMessage }}
-        </div>
-
-        <!-- Lista de canciones (Me gusta de Spotify) -->
+        <!-- Lista de canciones locales -->
         <div class="flex-1 overflow-auto">
           <table class="w-full text-xs md:text-sm">
             <thead class="bg-slate-100 border-b border-slate-200">
               <tr class="text-left text-[11px] text-slate-500">
-                <th class="w-10 px-3 py-1">#</th>
+                <th class="w-8 px-3 py-1"></th>
                 <th class="px-3 py-1">Título</th>
                 <th class="px-3 py-1 hidden md:table-cell">Artista</th>
-                <th class="w-16 px-3 py-1 text-right">Duración</th>
+                <th class="w-24 px-3 py-1 text-right">Estado</th>
               </tr>
             </thead>
             <tbody>
               <tr
-                v-for="(track, index) in tracks"
+                v-for="track in demoTracks"
                 :key="track.id"
-                class="border-b border-slate-100 cursor-pointer hover:bg-sky-50"
-                @click="openInSpotify(track)"
+                class="border-b border-slate-100 hover:bg-sky-50 cursor-pointer"
+                @click="playFromRow(track)"
               >
+                <!-- Botón play/pausa -->
                 <td class="px-3 py-1 text-[11px] text-slate-500">
-                  {{ index + 1 }}
+                  <button
+                    class="w-6 h-6 rounded-full flex items-center justify-center text-[11px]"
+                    :class="isCurrentTrack(track) && isDemoPlaying
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-slate-200 hover:bg-slate-300 text-slate-800'"
+                    @click.stop="toggleDemoPlayFromRow(track)"
+                  >
+                    <span v-if="isCurrentTrack(track) && isDemoPlaying">⏸</span>
+                    <span v-else>▶</span>
+                  </button>
                 </td>
+
+                <!-- Título -->
                 <td class="px-3 py-1">
                   <div class="flex flex-col">
-                    <span class="text-[11px] md:text-xs text-slate-900 underline decoration-sky-400/70">
+                    <span class="text-[11px] md:text-xs text-slate-900">
                       {{ track.title }}
                     </span>
                     <span class="text-[10px] text-slate-500 md:hidden">
@@ -107,28 +109,91 @@
                     </span>
                   </div>
                 </td>
+
+                <!-- Artista -->
                 <td class="px-3 py-1 text-[11px] text-slate-600 hidden md:table-cell">
                   {{ track.artist }}
                 </td>
+
+                <!-- Estado -->
                 <td class="px-3 py-1 text-[11px] text-slate-500 text-right">
-                  {{ track.duration }}
+                  <span v-if="isCurrentTrack(track) && isDemoPlaying">
+                    Reproduciendo
+                  </span>
+                  <span v-else-if="isCurrentTrack(track) && !isDemoPlaying">
+                    Pausado
+                  </span>
+                  <span v-else>
+                    Listo
+                  </span>
                 </td>
               </tr>
             </tbody>
           </table>
 
           <div
-            v-if="!isLoading && tracks.length === 0 && !errorMessage"
+            v-if="demoTracks.length === 0"
             class="px-4 py-6 text-center text-[12px] text-slate-500"
           >
-            No hemos podido cargar tus Me gusta todavía.
+            No hay canciones locales configuradas. Añade MP3 en <code>public/music/</code>.
+          </div>
+        </div>
+
+        <!-- Controles inferiores estilo reproductor -->
+        <div class="border-t border-slate-200 bg-slate-50 px-4 py-2 flex items-center justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <p class="text-[11px] text-slate-500">
+              Ahora sonando:
+            </p>
+            <p class="text-[12px] font-semibold text-slate-800 truncate">
+              <span v-if="currentDemoTrack">
+                {{ currentDemoTrack.title }}
+              </span>
+              <span v-else>
+                Nada aún. Elige una canción o pulsa ▶.
+              </span>
+            </p>
+            <p class="text-[11px] text-slate-500 truncate">
+              <span v-if="currentDemoTrack">
+                {{ currentDemoTrack.artist }}
+              </span>
+              <span v-else>
+                Biblioteca local sin depender de Spotify.
+              </span>
+            </p>
+          </div>
+
+          <!-- Controles demo -->
+          <div class="flex items-center gap-2">
+            <button
+              class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-200 hover:bg-slate-300 text-[12px]"
+              title="Anterior"
+              @click="prevDemoTrack"
+            >
+              ⏮
+            </button>
+            <button
+              class="w-9 h-9 flex items-center justify-center rounded-full bg-emerald-500 hover:bg-emerald-400 text-[14px] text-white font-bold"
+              :title="currentDemoTrack && isDemoPlaying ? 'Pausar' : 'Reproducir'"
+              @click="toggleDemoPlay"
+              :disabled="!currentDemoTrack"
+            >
+              {{ currentDemoTrack && isDemoPlaying ? '⏸' : '▶' }}
+            </button>
+            <button
+              class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-200 hover:bg-slate-300 text-[12px]"
+              title="Siguiente"
+              @click="nextDemoTrack"
+            >
+              ⏭
+            </button>
           </div>
         </div>
 
         <!-- Barra inferior estilo XP -->
         <div class="h-6 bg-sky-700/90 border-t border-sky-900 flex items-center px-3 text-[10px] text-sky-100">
           <span>
-            Cada fila abre la canción original en Spotify (web o app), usando la URL oficial.
+            Reproductor local: hasta 10 canciones MP3 en la carpeta de música del sistema.
           </span>
         </div>
       </div>
@@ -143,9 +208,6 @@ import {
   onMounted,
   onBeforeUnmount,
 } from 'vue';
-import {
-  fetchLikedTracks,
-} from '../services/spotify.js';
 
 const emit = defineEmits(['close', 'minimize']);
 
@@ -184,6 +246,14 @@ const windowStyle = computed(() => {
   };
 });
 
+// centrar ventana en pantalla cuando NO está maximizada
+const centerWindow = () => {
+  posX.value = 0;
+  posY.value = 0;
+  savedWidth.value = '640px';
+  savedHeight.value = '380px';
+};
+
 const onMouseMove = (event) => {
   if (!isDragging.value || isMaximized.value) return;
 
@@ -215,62 +285,218 @@ const onMouseDown = (event) => {
 };
 
 onMounted(() => {
-  loadLikedTracks();
+  centerWindow();
+  setupDemoAudio();
+  window.addEventListener('resize', handleResize);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('mousemove', onMouseMove);
   window.removeEventListener('mouseup', onMouseUp);
+  window.removeEventListener('resize', handleResize);
+  cleanupDemoAudio();
 });
+
+const handleResize = () => {
+  if (!isMaximized.value) {
+    centerWindow();
+  }
+};
 
 const toggleMaximize = () => {
   if (!isMaximized.value) {
-    // guardar posición actual para restaurar luego
     savedPosX.value = posX.value;
     savedPosY.value = posY.value;
     isMaximized.value = true;
   } else {
-    // restaurar posición y tamaño anteriores
     isMaximized.value = false;
     posX.value = savedPosX.value;
     posY.value = savedPosY.value;
   }
 };
 
-savedWidth.value = '640px';
-savedHeight.value = '380px';
+/* ---------- PLAYLIST LOCAL (MP3 EN public/music/) ---------- */
 
-/* ---------- DATOS DE CANCIONES DESDE SPOTIFY ---------- */
+const demoTracks = ref([
+  {
+    id: 'local-1',
+    title: 'One More Road to Cross',
+    artist: 'DMX',
+    url: '/music/One More Road to Cross.mp3',
+  },
+  {
+    id: 'local-2',
+    title: 'Go To Sleep',
+    artist: 'Eminem · DMX',
+    url: '/music/Go To Sleep.mp3',
+  },
+  {
+    id: 'local-3',
+    title: 'Dale Hasta Abajo',
+    artist: 'Divino',
+    url: '/music/Dale Hasta Abajo.mp3',
+  },
+  {
+    id: 'local-4',
+    title: 'Salgo Filoteau',
+    artist: 'Wisin & Yandel · Divino & Baby Ranks',
+    url: '/music/Salgo Filoteau.mp3',
+  },
+  {
+    id: 'local-5',
+    title: 'Bandera Negra',
+    artist: 'Mägo de Oz ',
+    url: '/music/Bandera Negra.mp3',
+  },
+  {
+    id: 'local-6',
+    title: 'La dama del Mar',
+    artist: 'Mägo de Oz ',
+    url: '/music/La dama del Mar.mp3',
+  },
+  {
+    id: 'local-7',
+    title: 'Sexy Btch',
+    artist: 'David Guetta, Akon',
+    url: '/music/Sexy Btch.mp3',
+  },
+  {    id: 'local-8',
+    title: 'Alan Walker',
+    artist: 'Faded',
+    url: '/music/Alan Walker.mp3',
+  },
+  {
+    id: 'local-9',
+    title: 'Bones',
+    artist: 'Imagine Dragonsr',
+    url: '/music/Bones.mp3',
+  },
+  {
+    id: 'local-10',
+    title: 'Thunder',
+    artist: 'Imagine Dragonsr',
+    url: '/music/Thunder.mp3',
+  }
+]);
 
-const tracks = ref([]);
-const isLoading = ref(false);
-const errorMessage = ref('');
+const currentDemoId = ref(demoTracks.value.length ? demoTracks.value[0].id : null);
+const isDemoPlaying = ref(false);
 
-const loadLikedTracks = async () => {
-  isLoading.value = true;
-  errorMessage.value = '';
-  try {
-    const result = await fetchLikedTracks(20);
-    tracks.value = result;
-  } catch (err) {
-    console.error(err);
-    errorMessage.value =
-      'Error al cargar tus Me gusta. Puede que el token haya caducado. Vuelve a generar un access token.';
-  } finally {
-    isLoading.value = false;
+const currentDemoTrack = computed(() =>
+  demoTracks.value.find((t) => t.id === currentDemoId.value) || null
+);
+
+let demoAudio = null;
+
+const setupDemoAudio = () => {
+  demoAudio = new Audio();
+  demoAudio.addEventListener('ended', handleDemoEnded);
+};
+
+const cleanupDemoAudio = () => {
+  if (!demoAudio) return;
+  demoAudio.pause();
+  demoAudio.removeEventListener('ended', handleDemoEnded);
+  demoAudio = null;
+};
+
+const handleDemoEnded = () => {
+  nextDemoTrack();
+};
+
+const playCurrentDemoAudio = () => {
+  if (!demoAudio || !currentDemoTrack.value) return;
+
+  demoAudio.src = currentDemoTrack.value.url;
+  demoAudio.currentTime = 0;
+  demoAudio
+    .play()
+    .then(() => {
+      isDemoPlaying.value = true;
+    })
+    .catch((err) => {
+      console.error('Error al reproducir audio demo:', err);
+      isDemoPlaying.value = false;
+    });
+};
+
+const toggleDemoPlay = () => {
+  if (!currentDemoTrack.value || !demoAudio) return;
+
+  if (isDemoPlaying.value) {
+    demoAudio.pause();
+    isDemoPlaying.value = false;
+  } else {
+    if (demoAudio.src !== currentDemoTrack.value.url) {
+      playCurrentDemoAudio();
+    } else {
+      demoAudio
+        .play()
+        .then(() => {
+          isDemoPlaying.value = true;
+        })
+        .catch((err) => {
+          console.error('Error al reanudar audio demo:', err);
+          isDemoPlaying.value = false;
+        });
+    }
   }
 };
 
-savedWidth.value = '640px';
-savedHeight.value = '380px';
+const nextDemoTrack = () => {
+  if (demoTracks.value.length === 0) return;
 
-/* ---------- ABRIR CANCIÓN EN SPOTIFY ---------- */
-
-const openInSpotify = (track) => {
-  if (!track.spotifyUrl) {
-    console.warn('Esta canción no tiene spotifyUrl');
+  if (!currentDemoTrack.value) {
+    currentDemoId.value = demoTracks.value[0].id;
+    playCurrentDemoAudio();
     return;
   }
-  window.open(track.spotifyUrl, '_blank');
+
+  const currentIndex = demoTracks.value.findIndex(
+    (t) => t.id === currentDemoId.value
+  );
+  const nextIndex = (currentIndex + 1) % demoTracks.value.length;
+  currentDemoId.value = demoTracks.value[nextIndex].id;
+  playCurrentDemoAudio();
 };
-</script> 
+
+const prevDemoTrack = () => {
+  if (demoTracks.value.length === 0) return;
+
+  if (!currentDemoTrack.value) {
+    currentDemoId.value = demoTracks.value[0].id;
+    playCurrentDemoAudio();
+    return;
+  }
+
+  const currentIndex = demoTracks.value.findIndex(
+    (t) => t.id === currentDemoId.value
+  );
+  const prevIndex =
+    (currentIndex - 1 + demoTracks.value.length) % demoTracks.value.length;
+  currentDemoId.value = demoTracks.value[prevIndex].id;
+  playCurrentDemoAudio();
+};
+
+const isCurrentTrack = (track) => {
+  return currentDemoTrack.value && currentDemoTrack.value.id === track.id;
+};
+
+const toggleDemoPlayFromRow = (track) => {
+  if (!demoAudio) return;
+
+  if (!isCurrentTrack(track)) {
+    currentDemoId.value = track.id;
+    playCurrentDemoAudio();
+    return;
+  }
+
+  toggleDemoPlay();
+};
+
+const playFromRow = (track) => {
+  if (!demoAudio) return;
+  currentDemoId.value = track.id;
+  playCurrentDemoAudio();
+};
+</script>

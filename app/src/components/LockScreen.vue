@@ -42,7 +42,7 @@
               type="password"
               class="w-full rounded-xl bg-black/20 border border-white/10 px-5 py-4 pr-14 text-base text-white outline-none placeholder:text-white/50 backdrop-blur-sm transition-all focus:bg-black/40 focus:border-blue-400/50 focus:ring-2 focus:ring-blue-400/30"
               autocomplete="current-password"
-              placeholder="Escribe la contraseña"
+              placeholder="Intenta con 123"
             />
 
             <button

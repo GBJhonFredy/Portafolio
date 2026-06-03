@@ -15,7 +15,7 @@
         <div class="flex flex-col mb-1">
           <span class="text-sm font-semibold tracking-widest text-white/90" style="font-family: Arial, sans-serif;">Developer</span>
           <span class="text-5xl md:text-6xl font-bold italic tracking-tight drop-shadow-md leading-none" style="font-family: 'Franklin Gothic Medium', 'Trebuchet MS', sans-serif;">
-            Portafolio<span class="text-[#ffb900] ml-1">XP</span>
+            Portafolio de <span class="text-[#ffb900] ml-1">Jhon Gil</span>
           </span>
         </div>
       </div>
