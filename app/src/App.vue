@@ -8,5 +8,5 @@
 </template>
 
 <script setup>
-import XpDesktop from './components/XpDesktop.vue';
+import XpDesktop from './components/XpDesktop/XpDesktop.vue';
 </script>

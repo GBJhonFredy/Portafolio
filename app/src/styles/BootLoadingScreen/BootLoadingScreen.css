@@ -1,0 +1,21 @@
+.boot-loader {
+  position: relative;
+  overflow: hidden;
+}
+
+.boot-loader-track {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  animation: boot-sweep 1.8s linear infinite;
+}
+
+@keyframes boot-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(180%);
+  }
+}

@@ -1,0 +1,104 @@
+.start-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 9999px;
+  border: 1px solid #166534;
+  background: linear-gradient(180deg, #5ee28d 0%, #2dd46a 46%, #13733a 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 2px 6px rgba(0, 0, 0, 0.75);
+  color: #fff;
+}
+
+.start-button:hover {
+  background: linear-gradient(180deg, #76f0a0 0%, #3be678 46%, #198c44 100%);
+}
+
+.start-button:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.start-orb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 0.3rem;
+  background: #ffffff;
+  border: none;
+  overflow: hidden;
+  box-shadow: none;
+} 
+
+.menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.9rem;
+  border-radius: 0.65rem;
+  padding: 0.7rem 0.8rem;
+  text-align: left;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+
+.menu-item:hover {
+  background: rgba(191, 219, 254, 0.72);
+}
+
+.menu-item-lock:hover {
+  background: rgba(253, 224, 71, 0.45);
+}
+
+.menu-item-restart:hover {
+  background: rgba(134, 239, 172, 0.45);
+}
+
+.menu-item-shutdown:hover {
+  background: rgba(252, 165, 165, 0.5);
+}
+
+.menu-item:active {
+  transform: translateY(1px);
+}
+
+.menu-item-primary {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(226, 232, 240, 0.9));
+  border: 1px solid rgba(148, 163, 184, 0.55);
+}
+
+.menu-item-icon {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background: rgba(15, 23, 42, 0.08);
+  font-size: 1.15rem;
+}
+
+.menu-item-icon-large {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.35rem;
+}
+
+.menu-item-icon-lock {
+  background: rgba(250, 204, 21, 0.18);
+}
+
+.menu-item-icon-restart {
+  background: rgba(74, 222, 128, 0.18);
+}
+
+.menu-item-icon-shutdown {
+  background: rgba(248, 113, 113, 0.18);
+}
