@@ -9,43 +9,38 @@
     >
       <!-- Barra de título navegador -->
       <div
-        class="flex items-center justify-between px-3 py-1.5 bg-slate-800 text-slate-100 border-b border-slate-900 select-none cursor-move"
+        class="h-7 bg-gradient-to-b from-[#0058e6] via-[#3a93ff] to-[#0058e6] flex items-center justify-between px-2 cursor-pointer border-b border-[#00138c] select-none cursor-move"
         @mousedown="onMouseDown"
       >
-        <div class="flex items-center gap-2 text-xs md:text-sm">
+        <div class="flex items-center gap-2 text-xs md:text-sm text-white font-bold drop-shadow-[1px_1px_1px_rgba(0,0,0,0.5)]">
           <span>🦊</span>
-          <span class="font-semibold">
+          <span class="font-bold text-white drop-shadow-[1px_1px_1px_rgba(0,0,0,0.5)]">
             Firefox Preview
           </span>
         </div>
 
-        <div class="flex items-center gap-[2px]">
-          <!-- Min -->
-          <button
-            class="w-6 h-5 flex items-center justify-center bg-[#2a65d5] hover:bg-[#437de5] border border-[#1b4db1] rounded-sm text-white"
-            title="Minimizar"
-            @click.stop="$emit('minimize')"
-          >
-            <svg width="9" height="9" viewBox="0 0 10 10"><rect x="1" y="7" width="8" height="2" fill="currentColor"/></svg>
-          </button>
-          <!-- Max / Restore -->
-          <button
-            class="w-6 h-5 flex items-center justify-center bg-[#2a65d5] hover:bg-[#437de5] border border-[#1b4db1] rounded-sm text-white"
-            :title="isMaximized ? 'Restaurar' : 'Maximizar'"
-            @click.stop="toggleMaximize"
-          >
-            <svg v-if="!isMaximized" width="9" height="9" viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="1" width="8" height="2" fill="currentColor"/></svg>
-            <svg v-else width="9" height="9" viewBox="0 0 10 10"><rect x="3" y="1" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="3" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="3" width="6" height="2" fill="currentColor"/></svg>
-          </button>
-          <!-- Close -->
-          <button
-            class="w-6 h-5 flex items-center justify-center bg-[#d93025] hover:bg-[#e8574d] border border-[#a1231a] rounded-sm text-white"
-            title="Cerrar"
-            @click.stop="$emit('close')"
-          >
-            <svg width="9" height="9" viewBox="0 0 10 10"><path d="M1 1 L9 9 M9 1 L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </button>
-        </div>
+              <div class="flex items-center gap-0.5">
+        <button
+          class="w-5 h-5 flex items-center justify-center bg-gradient-to-b from-blue-300 to-blue-500 border border-white/40 hover:brightness-110 active:brightness-90 rounded-sm"
+          @click.stop="$emit('minimize')"
+        >
+          <div class="w-2.5 h-0.5 bg-white"></div>
+        </button>
+        <button
+          class="w-5 h-5 flex items-center justify-center bg-gradient-to-b from-blue-300 to-blue-500 border border-white/40 hover:brightness-110 active:brightness-90 rounded-sm"
+          @click.stop="toggleMaximize"
+        >
+          <div class="w-2.5 h-2.5 border-2 border-white"></div>
+        </button>
+        <button
+          class="w-5 h-5 flex items-center justify-center bg-gradient-to-b from-red-400 to-red-600 border border-white/40 hover:brightness-110 active:brightness-90 rounded-sm ml-0.5"
+          @click.stop="$emit('close')"
+        >
+          <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
       </div>
 
       <!-- Barra de dirección simple -->

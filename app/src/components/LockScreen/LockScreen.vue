@@ -1,107 +1,113 @@
 <template>
-  <div class="fixed inset-0 z-50 flex min-h-screen flex-col items-center justify-center overflow-hidden text-white font-sans">
-    <!-- Background Image with Blur -->
-    <div 
-      class="absolute inset-0 bg-cover bg-center bg-no-repeat scale-[1.02]"
-      style="background-image: url('/xp-bliss.avif'); filter: blur(16px) brightness(0.6);"
-    ></div>
-     
-    <!-- Time & Date -->
-    <div class="absolute top-20 left-0 right-0 flex flex-col items-center text-white/90 drop-shadow-lg select-none">
-      <h1 class="text-7xl md:text-8xl font-light tracking-wide">{{ currentTime }}</h1>
-      <p class="text-xl md:text-2xl font-medium mt-3 capitalize">{{ currentDate }}</p>
+  <div class="fixed inset-0 z-50 flex flex-col font-sans cursor-default select-none overflow-hidden bg-slate-800">
+    
+    <!-- Top Banner -->
+    <div class="h-20 bg-slate-950 w-full relative flex items-center">
+      <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-950 via-sky-500 to-slate-950 opacity-70"></div>
     </div>
 
-    <!-- Login Container -->
-    <div class="relative z-10 flex w-[min(90vw,24rem)] flex-col items-center p-8 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all duration-300 mt-20">
+    <!-- Center Area -->
+    <div class="flex-1 flex items-center justify-center relative bg-gradient-to-b from-slate-700 to-slate-800">
+      <div class="flex items-center w-full max-w-4xl px-8">
+        
+        <!-- Left Side -->
+        <div class="flex-1 flex flex-col items-end pr-10">
+          <h1 class="text-4xl font-bold italic mb-4 text-white drop-shadow-[2px_2px_4px_rgba(0,0,0,0.5)]">
+            Portafolio <span class="text-sky-400 font-normal">Jhon Gil</span>
+          </h1>
+          <p class="text-[13px] text-white/90 drop-shadow-md">
+            Para empezar, haga clic en su nombre de usuario
+          </p>
+        </div>
+
+        <!-- Divider -->
+        <div class="w-px h-72 bg-gradient-to-b from-transparent via-white/40 to-transparent shadow-[1px_0_1px_rgba(0,0,0,0.2)]"></div>
+
+        <!-- Right Side (User) -->
+        <div class="flex-1 flex flex-col pl-10">
+          <div class="flex items-center gap-4 p-2 rounded hover:bg-white/5 transition-colors group">
+            <!-- Avatar -->
+            <div class="w-[64px] h-[64px] rounded-[4px] border-2 border-white shadow-[0_2px_5px_rgba(0,0,0,0.5)] overflow-hidden bg-slate-700 relative shrink-0">
+              <div class="absolute inset-0 border-2 border-sky-400 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+              <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-sky-400 to-indigo-600">
+                 <svg viewBox="0 0 24 24" class="h-10 w-10 text-white drop-shadow-md" aria-hidden="true">
+                  <path d="M12 12.2a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8Zm0 2.2c-4.1 0-7.5 2.5-7.5 5.6V21h15v-.99c0-3.11-3.4-5.61-7.5-5.61Z" fill="currentColor" />
+                </svg>
+              </div>
+            </div>
+            
+            <!-- Form -->
+            <div class="flex flex-col w-full justify-center">
+              <h2 class="text-[18px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.6)] mb-2">Administrador</h2>
+              
+              <form class="flex items-center" @submit.prevent="submitPassword">
+                <div class="relative flex items-center bg-white border border-gray-400 shadow-inner rounded-sm overflow-hidden w-56">
+                  <input
+                    id="lock-password"
+                    ref="passwordInput"
+                    v-model="password"
+                    type="password"
+                    class="w-full px-2 py-1.5 text-xs text-black outline-none"
+                    placeholder="Intenta con 123"
+                    autocomplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    class="w-7 h-7 m-0.5 flex items-center justify-center rounded-sm bg-gradient-to-b from-emerald-500 to-emerald-700 border border-emerald-800 shadow-sm hover:brightness-110 active:brightness-90 transition-all cursor-pointer"
+                    @click="handleActionButton"
+                  >
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+              </form>
+              
+              <!-- Error message space -->
+              <div class="h-4 mt-1">
+                <transition name="fade">
+                  <p v-if="errorMessage" class="text-[11px] text-[#ffb0b0] font-bold drop-shadow-[1px_1px_1px_rgba(0,0,0,0.8)]">
+                    {{ errorMessage }}
+                  </p>
+                </transition>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bottom Banner -->
+    <div class="h-24 bg-slate-950 w-full relative flex items-center justify-between px-10">
+      <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-slate-950 via-sky-500 to-slate-950 opacity-70"></div>
       
-      <!-- Avatar -->
-      <div class="relative group">
-        <div class="absolute inset-0 rounded-full bg-blue-500/40 blur-xl transition-all duration-500 group-hover:bg-blue-400/60"></div>
-        <div class="relative flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-white/40 shadow-xl overflow-hidden">
-           <svg viewBox="0 0 24 24" class="h-14 w-14 text-white drop-shadow-md" aria-hidden="true">
-            <path
-              d="M12 12.2a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8Zm0 2.2c-4.1 0-7.5 2.5-7.5 5.6V21h15v-.99c0-3.11-3.4-5.61-7.5-5.61Z"
-              fill="currentColor"
-            />
-          </svg>
-        </div>
+      <!-- Controls -->
+      <div class="flex items-center gap-6 z-10">
+        <button @click="handleShutdown" class="flex items-center gap-2 group cursor-pointer">
+          <div class="w-8 h-8 rounded-[4px] bg-gradient-to-b from-rose-500 to-rose-700 border border-white/80 shadow-[1px_1px_3px_rgba(0,0,0,0.5)] flex items-center justify-center group-hover:brightness-110 group-active:scale-95 transition-all">
+            <svg viewBox="0 0 24 24" class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0" /><line x1="12" y1="2" x2="12" y2="12" /></svg>
+          </div>
+          <span class="text-white text-[13px] group-hover:underline drop-shadow-md">Apagar equipo</span>
+        </button>
+        
+        <button @click="handleRestart" class="flex items-center gap-2 group cursor-pointer">
+          <div class="w-8 h-8 rounded-[4px] bg-gradient-to-b from-emerald-500 to-emerald-700 border border-white/80 shadow-[1px_1px_3px_rgba(0,0,0,0.5)] flex items-center justify-center group-hover:brightness-110 group-active:scale-95 transition-all">
+            <svg viewBox="0 0 24 24" class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+          </div>
+          <span class="text-white text-[13px] group-hover:underline drop-shadow-md">Reiniciar equipo</span>
+        </button>
+      </div>
+      
+      <!-- Time and branding -->
+      <div class="text-right text-white drop-shadow-md z-10 flex flex-col items-end">
+         <span class="font-bold text-xl italic mb-0.5">Portafolio <span class="text-sky-400 font-normal">Jhon Gil</span></span>
+         <span class="text-sky-200 text-xs">{{ currentTime }} - {{ currentDate }}</span>
       </div>
 
-      <div class="mt-6 w-full text-center">
-        <h2 class="text-3xl font-semibold tracking-tight text-white drop-shadow-sm">Administrador</h2>
-        <p class="mt-1 text-sm font-medium text-white/70">Sesión bloqueada</p>
-
-        <form class="mt-8 relative" @submit.prevent="submitPassword">
-          <label class="sr-only" for="lock-password">Contraseña</label>
-          <div class="group relative flex items-center">
-            <input
-              id="lock-password"
-              ref="passwordInput"
-              v-model="password"
-              type="password"
-              class="w-full rounded-xl bg-black/20 border border-white/10 px-5 py-4 pr-14 text-base text-white outline-none placeholder:text-white/50 backdrop-blur-sm transition-all focus:bg-black/40 focus:border-blue-400/50 focus:ring-2 focus:ring-blue-400/30"
-              autocomplete="current-password"
-              placeholder="Intenta con 123"
-            />
-
-            <button
-              type="button"
-              class="absolute right-2 flex h-10 w-10 items-center justify-center rounded-lg transition-all"
-              :class="password.length >= 3 ? 'bg-blue-500 hover:bg-blue-400 text-white shadow-lg scale-105' : 'bg-white/10 text-white/50 hover:bg-white/20 hover:text-white'"
-              :aria-label="password.length >= 3 ? 'Entrar' : 'Limpiar contraseña'"
-              @click="handleActionButton"
-            >
-              <svg v-if="password.length >= 3" viewBox="0 0 24 24" class="h-5 w-5" aria-hidden="true">
-                <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-              <svg v-else viewBox="0 0 24 24" class="h-5 w-5" aria-hidden="true">
-                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-              </svg>
-            </button>
-          </div>
-
-          <div class="h-6 mt-3">
-            <transition name="fade">
-              <p v-if="errorMessage" class="text-sm font-medium text-red-300 drop-shadow-sm">
-                {{ errorMessage }}
-              </p>
-            </transition>
-          </div>
-        </form>
-      </div>
     </div>
 
-    <!-- Power Controls -->
-    <div class="absolute bottom-8 right-8 flex gap-4 z-10">
-      <button 
-        @click="handleRestart"
-        class="group flex flex-col items-center justify-center gap-2 text-white/70 hover:text-white transition-colors"
-        title="Reiniciar"
-      >
-        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-black/20 backdrop-blur-sm border border-white/10 group-hover:bg-black/40 group-hover:border-white/30 transition-all group-hover:scale-105">
-          <svg viewBox="0 0 24 24" class="h-6 w-6" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-            <path d="M3 3v5h5" />
-          </svg>
-        </div>
-        <span class="text-xs font-medium tracking-wide">Reiniciar</span>
-      </button>
-
-      <button 
-        @click="handleShutdown"
-        class="group flex flex-col items-center justify-center gap-2 text-white/70 hover:text-red-400 transition-colors"
-        title="Apagar"
-      >
-        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-black/20 backdrop-blur-sm border border-white/10 group-hover:bg-red-500/20 group-hover:border-red-500/30 transition-all group-hover:scale-105">
-          <svg viewBox="0 0 24 24" class="h-6 w-6" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
-            <line x1="12" y1="2" x2="12" y2="12" />
-          </svg>
-        </div>
-        <span class="text-xs font-medium tracking-wide">Apagar</span>
-      </button>
-    </div>
   </div>
 </template>
 

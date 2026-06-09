@@ -64,6 +64,10 @@ export function useXpDesktop() {
   const isXpBrowserMinimized = ref(false);
   const isMusicOpen = ref(false);
   const isMusicMinimized = ref(false);
+  const isWmpOpen = ref(false);
+  const isWmpMinimized = ref(false);
+  const isMessengerOpen = ref(false);
+  const isMessengerMinimized = ref(false);
 
   let lastClickTimeMyPc = 0;
   let lastClickTimeFirefox = 0;
@@ -348,13 +352,41 @@ export function useXpDesktop() {
     }
   };
 
+  /* -------- MESSENGER -------- */
+  const openMessenger = () => {
+    isMessengerOpen.value = true;
+    isMessengerMinimized.value = false;
+    activateWindow('messenger');
+  };
+
+  const handleMessengerClose = () => {
+    isMessengerOpen.value = false;
+    isMessengerMinimized.value = false;
+    removeWindow('messenger');
+  };
+
+  const handleMessengerMinimize = () => {
+    isMessengerMinimized.value = true;
+  };
+
+  const toggleMessengerFromTaskbar = () => {
+    if (isMessengerMinimized.value) {
+      isMessengerMinimized.value = false;
+      activateWindow('messenger');
+    } else {
+      isMessengerMinimized.value = true;
+    }
+  };
+
   /* -------- ICONOS ESCRITORIO -------- */
   const iconPositions = ref({
     'mi-pc': { x: 16, y: 16 },
     'explorador': { x: 16, y: 96 },
     'code': { x: 16, y: 176 },
     'firefox': { x: 16, y: 256 },
-    'papelera': { x: 16, y: 336 }
+    'papelera': { x: 16, y: 336 },
+    'music': { x: 16, y: 416 },
+    'messenger': { x: 16, y: 496 }
   });
 
   const draggingIcon = ref(null);
@@ -419,6 +451,12 @@ export function useXpDesktop() {
       openCode();
     } else if (key === 'papelera') {
       console.log('Abrir papelera (pendiente implementar)');
+    } else if (key === 'messenger') {
+      openMessenger();
+    } else if (key === 'xp-browser') {
+      handleXpBrowserOpen();
+    } else if (key === 'music') {
+      openMusic();
     } else {
       console.log('Abrir ventana (pendiente implementar):', key);
     }
@@ -448,6 +486,10 @@ export function useXpDesktop() {
     isXpBrowserMinimized,
     isMusicOpen,
     isMusicMinimized,
+    isWmpOpen,
+    isWmpMinimized,
+    isMessengerOpen,
+    isMessengerMinimized,
 
     handleStartOpenMyPc,
     handleLock,
@@ -488,6 +530,11 @@ export function useXpDesktop() {
     handleMusicClose,
     handleMusicMinimize,
     toggleMusicFromTaskbar,
+
+    openMessenger,
+    handleMessengerClose,
+    handleMessengerMinimize,
+    toggleMessengerFromTaskbar,
 
     iconPositions,
     onIconMouseDown,

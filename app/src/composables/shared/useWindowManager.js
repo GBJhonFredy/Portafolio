@@ -34,18 +34,27 @@ export function useWindowManager(options = {}, windowId = null) {
         const parsed = JSON.parse(saved);
         if (parsed.x !== undefined) posX.value = parsed.x;
         if (parsed.y !== undefined) posY.value = parsed.y;
+        if (parsed.isMaximized !== undefined) isMaximized.value = parsed.isMaximized;
+        if (parsed.preMaxPosX !== undefined) preMaxPosX.value = parsed.preMaxPosX;
+        if (parsed.preMaxPosY !== undefined) preMaxPosY.value = parsed.preMaxPosY;
       } catch (e) {}
     }
   }
 
   // Guardar la posición en localStorage cuando se mueve
   const savePos = () => {
-    if (windowId && !isMaximized.value) {
-      localStorage.setItem(`window-pos-${windowId}`, JSON.stringify({ x: posX.value, y: posY.value }));
+    if (windowId) {
+      localStorage.setItem(`window-pos-${windowId}`, JSON.stringify({ 
+        x: posX.value, 
+        y: posY.value,
+        isMaximized: isMaximized.value,
+        preMaxPosX: preMaxPosX.value,
+        preMaxPosY: preMaxPosY.value
+      }));
     }
   };
 
-  watch([posX, posY], savePos);
+  watch([posX, posY, isMaximized], savePos);
 
   const windowStyle = computed(() => {
     if (isMaximized.value) {

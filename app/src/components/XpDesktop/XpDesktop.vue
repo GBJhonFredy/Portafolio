@@ -79,10 +79,8 @@
             @contextmenu.stop.prevent="handleContextMenu($event)"
           >
             <div class="icon-bg">
-              <svg viewBox="0 0 32 32" class="w-9 h-9 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-                <path d="M6 4h14l6 6v18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="#f8fafc" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"/>
-                <path d="M20 4v6h6" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"/>
-                <path d="M10 14h12M10 18h12M10 22h8" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+              <svg viewBox="0 0 24 24" class="w-9 h-9 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                <path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.261A1 1 0 0 0 .326 8.74L3.899 12 .326 15.26a1 1 0 0 0 .001 1.479L1.65 17.94a.999.999 0 0 0 1.276.057l4.12-3.128 9.46 8.63a1.492 1.492 0 0 0 1.704.29l4.942-2.377A1.5 1.5 0 0 0 24 20.06V3.939a1.5 1.5 0 0 0-.85-1.352zm-5.146 14.861L10.826 12l7.178-5.448v10.896z" fill="#007ACC"/>
               </svg>
             </div>
             <span class="icon-label">Code Studio</span>
@@ -124,6 +122,47 @@
               </svg>
             </div>
             <span class="icon-label">Papelera de reciclaje</span>
+          </button>
+
+          <!-- Reproductor WMP -->
+          <button
+            class="desktop-icon group absolute"
+            :style="{ transform: `translate(${iconPositions['music']?.x ?? 15}px, ${iconPositions['music']?.y ?? 420}px)` }"
+            @mousedown="onIconMouseDown($event, 'music')"
+            @click="handleIconClick($event, () => openWmp())"
+            @contextmenu.stop.prevent="handleContextMenu($event)"
+          >
+            <div class="icon-bg">
+              <svg viewBox="0 0 32 32" class="w-9 h-9 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                <circle cx="16" cy="16" r="13" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"/>
+                <circle cx="16" cy="16" r="4" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1"/>
+                <circle cx="16" cy="16" r="1.5" fill="#0f172a"/>
+                <path d="M16 3 A 13 13 0 0 1 29 16 A 13 13 0 0 0 16 3 Z" fill="#ffffff" opacity="0.5"/>
+                <path d="M14 21v-9l6-2v7" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12.5" cy="21" r="2.5" fill="#3b82f6"/>
+                <circle cx="18.5" cy="19" r="2.5" fill="#3b82f6"/>
+              </svg>
+            </div>
+            <span class="icon-label">Reproductor</span>
+          </button>
+
+          <!-- Windows Live Messenger -->
+          <button
+            class="desktop-icon group absolute"
+            :style="{ transform: `translate(${iconPositions['messenger']?.x ?? 15}px, ${iconPositions['messenger']?.y ?? 500}px)` }"
+            @mousedown="onIconMouseDown($event, 'messenger')"
+            @click="handleIconClick($event, () => openWindow('messenger'))"
+            @contextmenu.stop.prevent="handleContextMenu($event)"
+          >
+            <div class="icon-bg">
+              <svg viewBox="0 0 32 32" class="w-9 h-9 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                <!-- Blue figure -->
+                <path d="M12 16c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4zm0 2c-3.3 0-6 2.7-6 6v2h12v-2c0-3.3-2.7-6-6-6z" fill="#3b82f6" stroke="#1e3a8a" stroke-width="0.5"/>
+                <!-- Green figure -->
+                <path d="M20 18c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3zm0 2c-2.8 0-5 2.2-5 5v1h10v-1c0-2.8-2.2-5-5-5z" fill="#10b981" stroke="#064e3b" stroke-width="0.5"/>
+              </svg>
+            </div>
+            <span class="icon-label">Messenger</span>
           </button>
         </div>
 
@@ -204,15 +243,27 @@
           @minimize="handleXpBrowserMinimize"
         />
 
-        <!-- Ventana MÃºsica -->
+        <!-- Carpeta de Música -->
         <MusicPlayerWindow
           v-if="isMusicOpen"
           v-show="!isMusicMinimized"
           class="absolute inset-0 pointer-events-none"
-          :style="{ zIndex: getWindowZIndex('music') }"
+          :style="{ zIndex: getWindowZIndex('music') || 34 }"
           @mousedown="activateWindow('music')"
           @close="handleMusicClose"
           @minimize="handleMusicMinimize"
+          @open-wmp="openWmp"
+        />
+
+        <!-- Ventana Reproductor WMP -->
+        <WmpWindow
+          v-if="isWmpOpen"
+          v-show="!isWmpMinimized"
+          class="absolute inset-0 pointer-events-none"
+          :style="{ zIndex: getWindowZIndex('wmp') || 38 }"
+          @mousedown="activateWindow('wmp')"
+          @close="handleWmpClose"
+          @minimize="handleWmpMinimize"
         />
 
         <!-- Papelera de Reciclaje -->
@@ -223,6 +274,17 @@
           @mousedown="activateWindow('papelera')"
           @close="handlePapeleraClose"
           @minimize="handlePapeleraMinimize"
+        />
+
+        <!-- Messenger Window -->
+        <MessengerWindow
+          v-if="isMessengerOpen"
+          v-show="!isMessengerMinimized"
+          class="absolute inset-0 pointer-events-none"
+          :style="{ zIndex: getWindowZIndex('messenger') || 39 }"
+          @mousedown="activateWindow('messenger')"
+          @close="handleMessengerClose"
+          @minimize="handleMessengerMinimize"
         />
 
         <!-- Picture Explorer (Imágenes) -->
@@ -307,10 +369,8 @@
               : 'bg-slate-300/90 border-slate-100 text-slate-900'"
             @click="toggleCodeFromTaskbar"
           >
-            <svg viewBox="0 0 32 32" class="w-4 h-4 shrink-0 drop-shadow-sm">
-              <path d="M6 4h14l6 6v18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="#f8fafc" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"/>
-              <path d="M20 4v6h6" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"/>
-              <path d="M10 14h12M10 18h12M10 22h8" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+            <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0 drop-shadow-sm">
+              <path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.261A1 1 0 0 0 .326 8.74L3.899 12 .326 15.26a1 1 0 0 0 .001 1.479L1.65 17.94a.999.999 0 0 0 1.276.057l4.12-3.128 9.46 8.63a1.492 1.492 0 0 0 1.704.29l4.942-2.377A1.5 1.5 0 0 0 24 20.06V3.939a1.5 1.5 0 0 0-.85-1.352zm-5.146 14.861L10.826 12l7.178-5.448v10.896z" fill="#007ACC"/>
             </svg>
             <span class="truncate">Code Studio</span>
           </button>
@@ -333,7 +393,7 @@
             <span class="truncate">Firefox Preview</span>
           </button>
 
-          <!-- Navegador XP -->
+          <!-- Internet Explorer -->
           <button
             v-if="isXpBrowserOpen"
             class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm border text-[11px] md:text-xs shadow-[0_1px_3px_rgba(0,0,0,0.7)] max-w-[130px] md:max-w-[160px]"
@@ -348,7 +408,7 @@
               <path d="M4 16c0-8 15-12 24-4M8 26c10 8 20 2 20-10" stroke="#fcd34d" stroke-width="3" stroke-linecap="round" fill="none"/>
               <text x="16" y="22" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="white" text-anchor="middle" font-style="italic">e</text>
             </svg>
-            <span class="truncate">Navegador XP</span>
+            <span class="truncate">Internet Explorer</span>
           </button>
 
           <!-- MÃºsica -->
@@ -366,6 +426,27 @@
               <path d="M14 22a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0zm0 0v-7h6v2h-4v5z" fill="#ef4444" stroke="#991b1b" stroke-width="1" stroke-linejoin="round"/>
             </svg>
             <span class="truncate">Música</span>
+          </button>
+
+          <!-- Windows Media Player -->
+          <button
+            v-if="isWmpOpen"
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm border text-[11px] md:text-xs shadow-[0_1px_3px_rgba(0,0,0,0.7)] max-w-[130px] md:max-w-[160px]"
+            :class="isWmpMinimized
+              ? 'bg-slate-700 border-slate-500 text-slate-200'
+              : 'bg-slate-300/90 border-slate-100 text-slate-900'"
+            @click="toggleWmpFromTaskbar"
+          >
+            <svg viewBox="0 0 32 32" class="w-4 h-4 shrink-0 drop-shadow-sm">
+              <circle cx="16" cy="16" r="13" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"/>
+              <circle cx="16" cy="16" r="4" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1"/>
+              <circle cx="16" cy="16" r="1.5" fill="#0f172a"/>
+              <path d="M16 3 A 13 13 0 0 1 29 16 A 13 13 0 0 0 16 3 Z" fill="#ffffff" opacity="0.5"/>
+              <path d="M14 21v-9l6-2v7" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12.5" cy="21" r="2.5" fill="#3b82f6"/>
+              <circle cx="18.5" cy="19" r="2.5" fill="#3b82f6"/>
+            </svg>
+            <span class="truncate">Windows Media</span>
           </button>
 
           <!-- Imágenes -->
@@ -403,6 +484,22 @@
               <path d="M13 11v12M16 11v12M19 11v12" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
             <span class="truncate">Papelera de reciclaje</span>
+          </button>
+
+          <!-- Messenger -->
+          <button
+            v-if="isMessengerOpen"
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm border text-[11px] md:text-xs shadow-[0_1px_3px_rgba(0,0,0,0.7)] max-w-[130px] md:max-w-[160px]"
+            :class="isMessengerMinimized
+              ? 'bg-slate-700 border-slate-500 text-slate-200'
+              : 'bg-slate-300/90 border-slate-100 text-slate-900'"
+            @click="toggleMessengerFromTaskbar"
+          >
+            <svg viewBox="0 0 32 32" class="w-4 h-4 shrink-0 drop-shadow-sm">
+              <path d="M12 16c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4zm0 2c-3.3 0-6 2.7-6 6v2h12v-2c0-3.3-2.7-6-6-6z" fill="#3b82f6" stroke="#1e3a8a" stroke-width="0.5"/>
+              <path d="M20 18c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3zm0 2c-2.8 0-5 2.2-5 5v1h10v-1c0-2.8-2.2-5-5-5z" fill="#10b981" stroke="#064e3b" stroke-width="0.5"/>
+            </svg>
+            <span class="truncate">Messenger</span>
           </button>
 
           <!-- PowerShell -->
@@ -493,6 +590,7 @@ import MyDocsExplorer from '../MyDocsExplorer/MyDocsExplorer.vue';
 import CodeStudio from '../CodeStudio/CodeStudio.vue';
 import BrowserWindow from '../BrowserWindow/BrowserWindow.vue';
 import XpBrowser from '../XpBrowser/XpBrowser.vue';
+import WmpWindow from '../WmpWindow/WmpWindow.vue';
 import MusicPlayerWindow from '../MusicPlayerWindow/MusicPlayerWindow.vue';
 import StartMenu from '../StartMenu/StartMenu.vue';
 import ShutdownScreen from '../ShutdownScreen/ShutdownScreen.vue';
@@ -500,6 +598,7 @@ import PowerOffScreen from '../PowerOffScreen/PowerOffScreen.vue';
 import BootLoadingScreen from '../BootLoadingScreen/BootLoadingScreen.vue';
 import LockScreen from '../LockScreen/LockScreen.vue';
 import PapeleraExplorer from '../PapeleraExplorer/PapeleraExplorer.vue';
+import MessengerWindow from '../MessengerWindow/MessengerWindow.vue';
 import MyPictureExplorer from '../MyPictureExplorer/MyPictureExplorer.vue';
 import RestartConfirmDialog from '../RestartConfirmDialog/RestartConfirmDialog.vue';
 
@@ -528,6 +627,8 @@ const {
   isXpBrowserMinimized,
   isMusicOpen,
   isMusicMinimized,
+  isMessengerOpen,
+  isMessengerMinimized,
   handleStartOpenMyPc,
   handleLock,
   handleRestart,
@@ -561,6 +662,10 @@ const {
   handleMusicClose,
   handleMusicMinimize,
   toggleMusicFromTaskbar,
+  openMessenger,
+  handleMessengerClose,
+  handleMessengerMinimize,
+  toggleMessengerFromTaskbar,
   iconPositions,
   onIconMouseDown,
   handleIconClick,
@@ -656,6 +761,21 @@ const togglePictureExplorerFromTaskbar = () => {
   else { isPictureExplorerMinimized.value = true; }
 };
 
+const isWmpOpen = ref(false);
+const isWmpMinimized = ref(false);
+
+const openWmp = () => {
+  isWmpOpen.value = true;
+  isWmpMinimized.value = false;
+  activateWindow('wmp');
+};
+const handleWmpClose = () => { isWmpOpen.value = false; };
+const handleWmpMinimize = () => { isWmpMinimized.value = true; };
+const toggleWmpFromTaskbar = () => {
+  if (isWmpMinimized.value) { isWmpMinimized.value = false; activateWindow('wmp'); }
+  else { isWmpMinimized.value = true; }
+};
+
 const isPowerShellOpen = ref(false);
 const isPowerShellMinimized = ref(false);
 
@@ -672,6 +792,10 @@ const togglePowerShellFromTaskbar = () => {
 };
 
 onMounted(() => {
+  if (!iconPositions.value['music']) {
+    iconPositions.value['music'] = { x: 15, y: 420 };
+  }
+
   customBackground.value = localStorage.getItem('xp-desktop-bg');
 
   const savedIcons = localStorage.getItem('xp-desktop-icons');
@@ -716,11 +840,30 @@ onMounted(() => {
           try {
             const wins = JSON.parse(savedWins);
             wins.forEach(w => {
-              if (w === 'papelera') openPapelera();
-              else if (w === 'powershell') openPowerShell();
-              else if (w === 'firefox') handleFirefoxIconClick();
-              else if (w === 'picture-explorer') openPictureExplorer();
-              else openWindow(w);
+              // Soportamos el formato antiguo (string) y el nuevo (objeto)
+              const id = typeof w === 'string' ? w : w.id;
+              const isMin = typeof w === 'string' ? false : w.minimized;
+
+              if (id === 'papelera') openPapelera();
+              else if (id === 'powershell') openPowerShell();
+              else if (id === 'firefox') handleFirefoxIconClick();
+              else if (id === 'picture-explorer') openPictureExplorer();
+              else if (id === 'wmp') openWmp();
+              else openWindow(id);
+
+              if (isMin) {
+                if (id === 'mi-pc') handleMyPcMinimize();
+                else if (id === 'explorador') handleExplorerMinimize();
+                else if (id === 'code') handleCodeMinimize();
+                else if (id === 'firefox') handleBrowserMinimize();
+                else if (id === 'xp-browser') handleXpBrowserMinimize();
+                else if (id === 'music') handleMusicMinimize();
+                else if (id === 'wmp') handleWmpMinimize();
+                else if (id === 'papelera') handlePapeleraMinimize();
+                else if (id === 'messenger') handleMessengerMinimize();
+                else if (id === 'powershell') handlePowerShellMinimize();
+                else if (id === 'picture-explorer') handlePictureExplorerMinimize();
+              }
             });
           } catch(e) {}
         }
@@ -741,21 +884,27 @@ watch(hasContinuedToExplorer, (val) => {
   }
 });
 
-watch([powerState, isLocked, isMyPcOpen, isExplorerOpen, isCodeOpen, isBrowserOpen, isXpBrowserOpen, isMusicOpen, isPapeleraOpen, isPowerShellOpen, isPictureExplorerOpen], () => {
+watch([
+  powerState, isLocked, 
+  isMyPcOpen, isExplorerOpen, isCodeOpen, isBrowserOpen, isXpBrowserOpen, isMusicOpen, isPapeleraOpen, isPowerShellOpen, isPictureExplorerOpen, isWmpOpen, isMessengerOpen,
+  isMyPcMinimized, isExplorerMinimized, isCodeMinimized, isBrowserMinimized, isXpBrowserMinimized, isMusicMinimized, isPapeleraMinimized, isPowerShellMinimized, isPictureExplorerMinimized, isWmpMinimized, isMessengerMinimized
+], () => {
   localStorage.setItem('xp-power-state', powerState.value);
   localStorage.setItem('xp-is-locked', isLocked.value.toString());
 
   if (!isLocked.value && powerState.value === 'on') {
     const wins = [];
-    if (isMyPcOpen.value) wins.push('mi-pc');
-    if (isExplorerOpen.value) wins.push('explorador');
-    if (isCodeOpen.value) wins.push('code');
-    if (isBrowserOpen.value) wins.push('firefox'); 
-    if (isXpBrowserOpen.value) wins.push('xp-browser');
-    if (isMusicOpen.value) wins.push('music');
-    if (isPapeleraOpen.value) wins.push('papelera');
-    if (isPowerShellOpen.value) wins.push('powershell');
-    if (isPictureExplorerOpen.value) wins.push('picture-explorer');
+    if (isMyPcOpen.value) wins.push({ id: 'mi-pc', minimized: isMyPcMinimized.value });
+    if (isExplorerOpen.value) wins.push({ id: 'explorador', minimized: isExplorerMinimized.value });
+    if (isCodeOpen.value) wins.push({ id: 'code', minimized: isCodeMinimized.value });
+    if (isBrowserOpen.value) wins.push({ id: 'firefox', minimized: isBrowserMinimized.value }); 
+    if (isXpBrowserOpen.value) wins.push({ id: 'xp-browser', minimized: isXpBrowserMinimized.value });
+    if (isMusicOpen.value) wins.push({ id: 'music', minimized: isMusicMinimized.value });
+    if (isWmpOpen.value) wins.push({ id: 'wmp', minimized: isWmpMinimized.value });
+    if (isPapeleraOpen.value) wins.push({ id: 'papelera', minimized: isPapeleraMinimized.value });
+    if (isMessengerOpen.value) wins.push({ id: 'messenger', minimized: isMessengerMinimized.value });
+    if (isPowerShellOpen.value) wins.push({ id: 'powershell', minimized: isPowerShellMinimized.value });
+    if (isPictureExplorerOpen.value) wins.push({ id: 'picture-explorer', minimized: isPictureExplorerMinimized.value });
     localStorage.setItem('xp-open-windows', JSON.stringify(wins));
   }
 }, { deep: true });

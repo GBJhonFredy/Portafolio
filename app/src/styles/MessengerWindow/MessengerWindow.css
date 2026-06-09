@@ -1,0 +1,23 @@
+.messenger-window {
+  /* Any specific styles not covered by tailwind */
+  font-family: 'Tahoma', 'Segoe UI', sans-serif;
+}
+
+.messenger-window textarea::-webkit-scrollbar {
+  width: 12px;
+}
+
+.messenger-window textarea::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-left: 1px solid #e0e0e0;
+}
+
+.messenger-window textarea::-webkit-scrollbar-thumb {
+  background: #cdcdcd;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+}
+
+.messenger-window textarea::-webkit-scrollbar-thumb:hover {
+  background: #a6a6a6;
+}

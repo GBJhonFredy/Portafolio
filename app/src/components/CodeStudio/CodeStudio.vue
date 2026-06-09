@@ -4,16 +4,17 @@
     class="absolute inset-0 pointer-events-none z-30"
   >
     <div
-      class="pointer-events-auto bg-slate-900 text-slate-100 border border-slate-700 shadow-[0_10px_30px_rgba(0,0,0,0.9)] window-pop"
+      class="pointer-events-auto bg-slate-900 text-slate-100 border border-slate-700 shadow-[0_10px_30px_rgba(0,0,0,0.9)] window-pop flex flex-col overflow-hidden"
       :style="windowStyle"
     >
-      <!-- Barra de tÃ­tulo -->
+      <!-- Barra de título -->
       <div
-        class="flex items-center justify-between px-3 py-1.5 bg-slate-800 text-slate-100 border-b border-slate-900 select-none cursor-move"
+        class="h-8 shrink-0 bg-[#1e1e1e] flex items-center justify-between px-3 cursor-pointer border-b border-[#2d2d2d] select-none cursor-move"
         @mousedown="onMouseDown"
       >
-        <div class="flex items-center gap-2 text-xs md:text-sm">
-          <span class="font-semibold">
+        <div class="flex items-center gap-2 overflow-hidden text-xs text-slate-300">
+          <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0"><path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.261A1 1 0 0 0 .326 8.74L3.899 12 .326 15.26a1 1 0 0 0 .001 1.479L1.65 17.94a.999.999 0 0 0 1.276.057l4.12-3.128 9.46 8.63a1.492 1.492 0 0 0 1.704.29l4.942-2.377A1.5 1.5 0 0 0 24 20.06V3.939a1.5 1.5 0 0 0-.85-1.352zm-5.146 14.861L10.826 12l7.178-5.448v10.896z" fill="#007ACC"/></svg>
+          <span class="font-medium text-slate-200">
             Code Studio
           </span>
           <span v-if="activeProject" class="text-slate-400">
@@ -21,47 +22,52 @@
           </span>
         </div>
 
-        <!-- BotÃ³n Ejecutar -->
-        <button
-          class="flex items-center gap-1 px-2 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-[11px] md:text-xs"
-          title="Ejecutar / Vista previa"
-          @click="runPreview"
-          :disabled="!activeFile"
-        >
-          <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="currentColor">
-            <path d="M8 5v14l11-7z"/>
-          </svg>
-          Ejecutar
-        </button>
+        <div class="flex items-center gap-1">
+          <!-- Botón Ejecutar -->
+          <button
+            class="flex items-center gap-1.5 px-2 py-1 rounded text-slate-300 hover:bg-[#333333] hover:text-white transition-colors text-[11px]"
+            title="Ejecutar / Vista previa"
+            @click="runPreview"
+            :disabled="!activeFile"
+            :class="{ 'opacity-50 cursor-not-allowed': !activeFile }"
+          >
+            <svg viewBox="0 0 24 24" class="w-3 h-3 text-emerald-500" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            Ejecutar
+          </button>
 
-        <div class="flex items-center gap-[2px]">
-          <button
-            class="w-6 h-5 flex items-center justify-center bg-[#2a65d5] hover:bg-[#437de5] border border-[#1b4db1] rounded-sm text-white"
-            title="Minimizar"
-            @click.stop="$emit('minimize')"
-          >
-            <svg width="9" height="9" viewBox="0 0 10 10"><rect x="1" y="7" width="8" height="2" fill="currentColor"/></svg>
-          </button>
-          <button
-            class="w-6 h-5 flex items-center justify-center bg-[#2a65d5] hover:bg-[#437de5] border border-[#1b4db1] rounded-sm text-white"
-            :title="isMaximized ? 'Restaurar' : 'Maximizar'"
-            @click.stop="toggleMaximize"
-          >
-            <svg v-if="!isMaximized" width="9" height="9" viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="1" width="8" height="2" fill="currentColor"/></svg>
-            <svg v-else width="9" height="9" viewBox="0 0 10 10"><rect x="3" y="1" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="3" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="3" width="6" height="2" fill="currentColor"/></svg>
-          </button>
-          <button
-            class="w-6 h-5 flex items-center justify-center bg-[#d93025] hover:bg-[#e8574d] border border-[#a1231a] rounded-sm text-white"
-            title="Cerrar"
-            @click.stop="$emit('close')"
-          >
-            <svg width="9" height="9" viewBox="0 0 10 10"><path d="M1 1 L9 9 M9 1 L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </button>
+          <!-- Controles de Ventana (Estilo Plano) -->
+          <div class="flex items-center ml-1">
+            <button
+              class="w-8 h-8 flex items-center justify-center hover:bg-[#333333] text-slate-400 hover:text-slate-200 transition-colors rounded"
+              @click.stop="$emit('minimize')"
+              title="Minimizar"
+            >
+              <div class="w-2.5 h-[1px] bg-current"></div>
+            </button>
+            <button
+              class="w-8 h-8 flex items-center justify-center hover:bg-[#333333] text-slate-400 hover:text-slate-200 transition-colors rounded"
+              @click.stop="toggleMaximize"
+              title="Maximizar"
+            >
+              <div class="w-2.5 h-2.5 border border-current"></div>
+            </button>
+            <button
+              class="w-8 h-8 flex items-center justify-center hover:bg-red-500 hover:text-white text-slate-400 transition-colors rounded"
+              @click.stop="$emit('close')"
+              title="Cerrar"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Cuerpo de la ventana -->
-      <div class="flex h-full">
+      <div class="flex flex-1 min-h-0 overflow-hidden">
         <!-- Activity bar -->
         <div
           class="w-10 bg-slate-950 flex flex-col items-center py-3 gap-3 text-[14px]"
