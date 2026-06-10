@@ -7,7 +7,7 @@
     > 
       <!-- Title Bar -->
       <div
-        class="h-7 bg-gradient-to-b from-[#0058e6] via-[#3a93ff] to-[#0058e6] flex items-center justify-between px-2 cursor-pointer border-b border-[#00138c]"
+        class="h-7 bg-[#192438] flex items-center justify-between px-2 cursor-pointer border-b border-slate-900"
         @mousedown="onMouseDown"
         @dblclick="toggleMaximize"
       >

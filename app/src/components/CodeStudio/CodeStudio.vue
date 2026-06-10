@@ -1,6 +1,6 @@
 <template>
   <!-- Ventana tipo VS Code -->
-  <div
+  <div 
     class="absolute inset-0 pointer-events-none z-30"
   >
     <div
@@ -177,7 +177,7 @@
               v-if="projects.length === 0 && !isLoading"
               class="px-3 py-3 text-[11px] text-slate-500"
             >
-              No hay carpetas. Usa el botÃ³n "+" arriba para crear una.
+              No hay carpetas. Usa el botón "+" arriba para crear una.
             </div>
 
             <div
@@ -290,7 +290,7 @@
               class="w-full h-full flex items-center justify-center text-slate-500 text-[12px] px-4 text-center"
             >
               Crea o selecciona un archivo en el panel izquierdo para empezar a
-              escribir cÃ³digo.
+              escribir código.
             </div>
 
             <div

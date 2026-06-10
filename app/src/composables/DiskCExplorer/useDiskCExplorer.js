@@ -2,7 +2,6 @@ import { ref, onMounted } from 'vue';
 import { supabase } from '../../supabaseClient';
 
 export function useDiskCExplorer() {
-  const currentPath = ref('C:');
   const projects = ref([]);
   const isLoading = ref(false);
 
@@ -25,24 +24,9 @@ export function useDiskCExplorer() {
     }
   };
 
-  const openRepos = () => {
-    currentPath.value = 'C:\\Repos Code Studio';
-    loadProjects(); // Recargar proyectos al entrar a la carpeta
-  };
-
-  const goBack = () => {
-    currentPath.value = 'C:';
-  };
-
-  onMounted(() => {
-    loadProjects();
-  });
-
   return {
-    currentPath,
     projects,
     isLoading,
-    openRepos,
-    goBack
+    loadProjects
   };
 }

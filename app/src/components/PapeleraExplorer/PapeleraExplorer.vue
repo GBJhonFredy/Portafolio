@@ -1,48 +1,11 @@
 <template>
-  <div class="absolute inset-0 pointer-events-none">
-    <div
-      class="pointer-events-auto bg-slate-50 text-slate-900 border border-slate-400 shadow-[0_10px_30px_rgba(15,23,42,0.7)] window-pop"
-      :style="windowStyle"
-    >
-      <!-- Barra de título -->
-      <div class="h-7 bg-gradient-to-b from-[#0058e6] via-[#3a93ff] to-[#0058e6] flex items-center justify-between px-2 cursor-pointer border-b border-[#00138c] select-none cursor-move" @mousedown="onMouseDown">
-        <div class="flex items-center gap-2 text-xs md:text-sm text-white font-bold drop-shadow-[1px_1px_1px_rgba(0,0,0,0.5)]">
-          <span class="font-bold text-white drop-shadow-[1px_1px_1px_rgba(0,0,0,0.5)]">Papelera de reciclaje</span>
-        </div>
-              <div class="flex items-center gap-0.5">
-        <button
-          class="w-5 h-5 flex items-center justify-center bg-gradient-to-b from-blue-300 to-blue-500 border border-white/40 hover:brightness-110 active:brightness-90 rounded-sm"
-          @click.stop="$emit('minimize')"
-        >
-          <div class="w-2.5 h-0.5 bg-white"></div>
-        </button>
-        <button
-          class="w-5 h-5 flex items-center justify-center bg-gradient-to-b from-blue-300 to-blue-500 border border-white/40 hover:brightness-110 active:brightness-90 rounded-sm"
-          @click.stop="toggleMaximize"
-        >
-          <div class="w-2.5 h-2.5 border-2 border-white"></div>
-        </button>
-        <button
-          class="w-5 h-5 flex items-center justify-center bg-gradient-to-b from-red-400 to-red-600 border border-white/40 hover:brightness-110 active:brightness-90 rounded-sm ml-0.5"
-          @click.stop="$emit('close')"
-        >
-          <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-      </div>
-
-      <!-- Cuerpo -->
-      <div class="flex flex-col h-[calc(100%-30px)] animate-fade-in relative bg-white" @click="closeContextMenu" @contextmenu="closeContextMenu">
-         <!-- Herramientas -->
-         <div class="flex items-center gap-3 bg-slate-100 p-2 border-b border-slate-300 shadow-sm text-xs">
-            <button @click="emptyTrash" class="px-2 py-1 bg-slate-200 border border-slate-300 hover:bg-slate-300 rounded text-slate-700">Vaciar Papelera</button>
-            <button @click="loadItems" class="px-2 py-1 bg-slate-200 border border-slate-300 hover:bg-slate-300 rounded text-slate-700">Refrescar</button>
+  <div :class="embedded ? 'flex flex-col h-full w-full' : 'absolute inset-0 pointer-events-none'" @click="closeContextMenu">
+         <div class="flex items-center gap-3 bg-slate-100 p-2 border-b border-slate-300 shadow-sm text-xs pointer-events-auto">
+            <button @click="handleEmptyTrash" class="px-2 py-1 bg-slate-200 border border-slate-300 hover:bg-slate-300 rounded text-slate-700">Vaciar Papelera</button>
          </div>
          
          <!-- Contenido -->
-         <div class="flex flex-wrap gap-6 p-4 content-start overflow-auto flex-1">
+         <div class="flex flex-wrap gap-6 p-4 content-start overflow-auto flex-1 pointer-events-auto">
             <div v-if="isLoading" class="w-full text-slate-500 text-xs">Cargando elementos eliminados...</div>
             <div v-else-if="deletedItems.length === 0" class="w-full text-slate-500 text-xs">La papelera está vacía.</div>
             
@@ -62,13 +25,14 @@
             </div>
          </div>
 
-         <!-- Context Menu -->
-         <div v-if="contextMenu.visible" class="fixed z-50 w-48 bg-slate-50 border border-slate-400 shadow-[2px_2px_5px_rgba(0,0,0,0.5)] py-1 text-slate-800 text-[11px]" :style="{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }" @click.stop>
-            <button class="w-full text-left px-4 py-1.5 hover:bg-sky-600 hover:text-white" @click="handleRestore">Restaurar</button>
-            <button class="w-full text-left px-4 py-1.5 hover:bg-red-600 hover:text-white" @click="handleHardDelete">Eliminar definitivamente</button>
+         <!-- Menú Contextual -->
+         <div v-if="contextMenu.visible"
+              class="fixed bg-white border border-slate-300 shadow-md py-1 z-50 text-xs text-slate-800 flex flex-col min-w-[120px] pointer-events-auto"
+              :style="{ top: contextMenu.y + 'px', left: contextMenu.x + 'px' }"
+              @click.stop>
+            <button class="px-4 py-1.5 text-left hover:bg-sky-500 hover:text-white transition-colors" @click="handleRestore">Restaurar</button>
+            <button class="px-4 py-1.5 text-left hover:bg-sky-500 hover:text-white transition-colors" @click="handleHardDelete">Eliminar</button>
          </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -77,8 +41,15 @@ import { ref, onMounted } from 'vue';
 import { usePapeleraExplorer } from '../../composables/PapeleraExplorer/usePapeleraExplorer';
 import { useWindowManager } from '../../composables/shared/useWindowManager';
 
+const props = defineProps({
+  embedded: {
+    type: Boolean,
+    default: false
+  }
+});
+
 const emit = defineEmits(['close', 'minimize']);
-const { deletedItems, isLoading, restoreItem, hardDeleteItem, emptyTrash, loadItems } = usePapeleraExplorer();
+const { deletedItems, isLoading, restoreItem, hardDeleteItem, emptyTrash } = usePapeleraExplorer();
 
 const { isMaximized, windowStyle, centerWindow, onMouseDown, toggleMaximize } = useWindowManager({ defaultWidth: '700px', defaultHeight: '400px' }, 'papelera-explorer');
 
@@ -88,6 +59,13 @@ const handleContextMenu = (e, item) => {
   contextMenu.value = { visible: true, x: e.clientX, y: e.clientY, item: item };
 };
 const closeContextMenu = () => { contextMenu.value.visible = false; };
+
+const handleEmptyTrash = () => {
+  if (deletedItems.value.length === 0) return;
+  if (confirm('¿Seguro que desea eliminar de forma permanente todos los archivos?')) {
+    emptyTrash();
+  }
+};
 
 const handleRestore = () => {
   if (contextMenu.value.item) restoreItem(contextMenu.value.item);

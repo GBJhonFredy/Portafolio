@@ -73,14 +73,13 @@ export function useMusicPlayerWindow() {
     isAudioSetup = true;
   };
 
-  // No destruimos el audio onBeforeUnmount para que siga sonando
   const cleanupDemoAudio = () => {
-    // Si quisieramos que pare al desmontar la app global:
-    // if (!demoAudio) return;
-    // demoAudio.pause();
-    // demoAudio.removeEventListener('ended', handleDemoEnded);
-    // demoAudio = null;
-    // isAudioSetup = false;
+    if (!demoAudio) return;
+    demoAudio.pause();
+    demoAudio.removeEventListener('ended', handleDemoEnded);
+    demoAudio = null;
+    isAudioSetup = false;
+    isDemoPlaying.value = false;
   };
 
   const playCurrentDemoAudio = () => {
@@ -179,7 +178,7 @@ export function useMusicPlayerWindow() {
   });
 
   onBeforeUnmount(() => {
-    // cleanupDemoAudio(); // Descomentar si se quiere limpiar
+    cleanupDemoAudio();
   });
 
   return {
@@ -193,7 +192,7 @@ export function useMusicPlayerWindow() {
     nextDemoTrack,
     prevDemoTrack,
     toggleDemoPlayFromRow,
-    playFromRow
+    playFromRow,
+    cleanupDemoAudio
   };
 }
-

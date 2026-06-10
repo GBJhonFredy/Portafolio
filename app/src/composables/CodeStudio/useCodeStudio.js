@@ -130,7 +130,7 @@ export function useCodeStudio(emit) {
     const firstFile = files.value.find((f) => f.projectId === id) || null;
     activeFileId.value = firstFile ? firstFile.id : null;
   };
-
+ 
   const setActiveFile = (id) => {
     if (saveTimeout && activeFile.value) {
       clearTimeout(saveTimeout);
@@ -158,6 +158,9 @@ export function useCodeStudio(emit) {
 
       projects.value = projectsData || [];
 
+      // Colapsar todas las carpetas por defecto al cargar
+      collapsedProjects.value = projects.value.map(p => p.id);
+
       const { data: filesData, error: filesError } = await supabase
         .from('code_files')
         .select('*')
@@ -180,10 +183,7 @@ export function useCodeStudio(emit) {
 
       if (projects.value.length > 0) {
         activeProjectId.value = projects.value[0].id;
-        const firstFile = files.value.find(
-          (f) => f.projectId === activeProjectId.value
-        );
-        activeFileId.value = firstFile ? firstFile.id : null;
+        activeFileId.value = null;
       } else {
         activeProjectId.value = null;
         activeFileId.value = null;
@@ -313,8 +313,7 @@ export function useCodeStudio(emit) {
       projects.value = projects.value.filter((p) => p.id !== id);
       if (activeProjectId.value === id) {
         activeProjectId.value = projects.value.length ? projects.value[0].id : null;
-        const remainingFiles = projectFiles(activeProjectId.value);
-        activeFileId.value = remainingFiles.length ? remainingFiles[0].id : null;
+        activeFileId.value = null;
       }
     } catch (err) {
       console.error(err);
@@ -343,8 +342,7 @@ export function useCodeStudio(emit) {
       if (error) throw error;
       files.value = files.value.filter((f) => f.id !== id);
       if (activeFileId.value === id) {
-        const remaining = projectFiles(activeProjectId.value);
-        activeFileId.value = remaining.length ? remaining[0].id : null;
+        activeFileId.value = null;
       }
     } catch (err) {
       console.error(err);

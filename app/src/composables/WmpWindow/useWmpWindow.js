@@ -1,6 +1,6 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { supabase } from '../../supabaseClient';
-
+ 
 const wmpTracks = ref([]);
 const isLoading = ref(false);
 const loadError = ref(null);
@@ -86,6 +86,18 @@ export function useWmpWindow() {
     wmpAudio.addEventListener('timeupdate', handleTimeUpdate);
     wmpAudio.volume = wmpVolume.value;
     isAudioSetup = true;
+  };
+
+  const cleanupWmpAudio = () => {
+    if (!wmpAudio) return;
+    wmpAudio.pause();
+    wmpAudio.removeEventListener('ended', handleWmpEnded);
+    wmpAudio.removeEventListener('timeupdate', handleTimeUpdate);
+    wmpAudio = null;
+    isAudioSetup = false;
+    isWmpPlaying.value = false;
+    wmpCurrentTime.value = 0;
+    wmpProgress.value = 0;
   };
 
   const playCurrentWmpAudio = () => {
@@ -211,6 +223,7 @@ export function useWmpWindow() {
     toggleWmpPlayFromRow,
     playFromRow,
     seekWmp,
-    setWmpVolume
+    setWmpVolume,
+    cleanupWmpAudio
   };
 }

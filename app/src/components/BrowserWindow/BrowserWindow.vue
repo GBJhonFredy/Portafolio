@@ -9,7 +9,7 @@
     >
       <!-- Barra de título navegador -->
       <div
-        class="h-7 bg-gradient-to-b from-[#0058e6] via-[#3a93ff] to-[#0058e6] flex items-center justify-between px-2 cursor-pointer border-b border-[#00138c] select-none cursor-move"
+        class="h-7 bg-[#0F172A] flex items-center justify-between px-2 cursor-pointer border-b border-slate-900 select-none cursor-move"
         @mousedown="onMouseDown"
       >
         <div class="flex items-center gap-2 text-xs md:text-sm text-white font-bold drop-shadow-[1px_1px_1px_rgba(0,0,0,0.5)]">

@@ -50,19 +50,34 @@ const handleBootFinished = () => {
 };
 
 const handleUnlock = () => {
+  // ¿Es la primera vez que entra al portafolio?
+  const hasOpenedInfo = localStorage.getItem('xp-has-opened-info');
+
+  if (!hasOpenedInfo) {
+    // Marcamos que la info debe abrirse una vez en el escritorio
+    localStorage.setItem('xp-should-open-info-once', 'true');
+  }
+
   // Cuando mete la contraseña correcta
   stage.value = 'desktop';
+  // Guardamos que ya NO está bloqueado
+  localStorage.setItem('xp-is-locked', 'false');
 };
 
 onMounted(() => {
-  // Al cargar la página, revisamos si ya había encendido antes
-  const saved = localStorage.getItem('xp-power-state');
+  const savedPower = localStorage.getItem('xp-power-state'); // 'on' o null
+  const savedLocked = localStorage.getItem('xp-is-locked');  // 'true' o 'false'
 
-  if (saved === 'on') {
-    // Si ya encendió alguna vez, podemos empezar directamente en lock (o desktop si quieres)
-    stage.value = 'lock';
+  if (savedPower === 'on') {
+    if (savedLocked === 'false') {
+      // Ya estaba encendido y desbloqueado → vamos directo al escritorio
+      stage.value = 'desktop';
+    } else {
+      // Encendido pero bloqueado (o sin dato) → lockscreen
+      stage.value = 'lock';
+    }
   } else {
-    // Si nunca ha encendido (o borró el storage), mostramos pantalla de apagado
+    // Nunca ha encendido → pantalla apagado
     stage.value = 'off';
   }
 });

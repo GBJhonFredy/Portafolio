@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-screen h-screen overflow-hidden font-sans text-slate-100" @click="closeContextMenu" @contextmenu.prevent="handleDesktopContextMenu($event)">
+  <div class="relative w-screen h-screen overflow-hidden font-sans text-slate-100" @click="closeContextMenu" @contextmenu.prevent>
     <ShutdownScreen v-if="powerState === 'shutting-down'" />
     <PowerOffScreen v-else-if="powerState === 'off'" @power-on="handlePowerOn" />
     <BootLoadingScreen v-else-if="powerState === 'booting'" />
@@ -31,7 +31,7 @@
       <!-- Escritorio -->
       <div class="flex-1 px-3 py-3 md:px-5 md:py-4 relative z-0">
         <!-- Contenedor de iconos -->
-        <div class="absolute inset-0 z-0 p-3 md:p-4">
+        <div class="absolute inset-0 z-0 p-3 md:p-4" @contextmenu.self="handleDesktopContextMenu($event)">
           <!-- Mi PC -->
           <button
             class="desktop-icon group absolute"
@@ -58,7 +58,7 @@
             class="desktop-icon group absolute"
             :style="{ transform: `translate(${iconPositions['explorador'].x}px, ${iconPositions['explorador'].y}px)` }"
             @mousedown="onIconMouseDown($event, 'explorador')"
-            @click="handleIconClick($event, () => openWindow('explorador'))"
+            @dblclick="handleIconClick($event, () => openWindow('explorador'))"
             @contextmenu.stop.prevent="handleContextMenu($event)"
           >
             <div class="icon-bg">
@@ -67,7 +67,7 @@
                 <path d="M2 13h28v13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V13z" fill="#fde047" stroke="#b45309" stroke-width="1.5" stroke-linejoin="round"/>
               </svg>
             </div>
-            <span class="icon-label">Explorador de archivos</span>
+            <span class="icon-label">Explorador <br> de archivos</span>
           </button>
 
           <!-- Code Studio -->
@@ -75,7 +75,7 @@
             class="desktop-icon group absolute"
             :style="{ transform: `translate(${iconPositions['code'].x}px, ${iconPositions['code'].y}px)` }"
             @mousedown="onIconMouseDown($event, 'code')"
-            @click="handleIconClick($event, () => openWindow('code'))"
+            @dblclick="handleIconClick($event, () => openWindow('code'))"
             @contextmenu.stop.prevent="handleContextMenu($event)"
           >
             <div class="icon-bg">
@@ -110,7 +110,7 @@
             class="desktop-icon group absolute"
             :style="{ transform: `translate(${iconPositions['papelera'].x}px, ${iconPositions['papelera'].y}px)` }"
             @mousedown="onIconMouseDown($event, 'papelera')"
-            @click="handleIconClick($event, () => openPapelera())"
+            @dblclick="handleIconClick($event, () => openPapelera())"
             @contextmenu.stop.prevent="handleContextMenu($event)"
           >
             <div class="icon-bg">
@@ -129,7 +129,7 @@
             class="desktop-icon group absolute"
             :style="{ transform: `translate(${iconPositions['music']?.x ?? 15}px, ${iconPositions['music']?.y ?? 420}px)` }"
             @mousedown="onIconMouseDown($event, 'music')"
-            @click="handleIconClick($event, () => openWmp())"
+            @dblclick="handleIconClick($event, () => openWmp())"
             @contextmenu.stop.prevent="handleContextMenu($event)"
           >
             <div class="icon-bg">
@@ -151,7 +151,7 @@
             class="desktop-icon group absolute"
             :style="{ transform: `translate(${iconPositions['messenger']?.x ?? 15}px, ${iconPositions['messenger']?.y ?? 500}px)` }"
             @mousedown="onIconMouseDown($event, 'messenger')"
-            @click="handleIconClick($event, () => openWindow('messenger'))"
+            @dblclick="handleIconClick($event, () => openWindow('messenger'))"
             @contextmenu.stop.prevent="handleContextMenu($event)"
           >
             <div class="icon-bg">
@@ -163,6 +163,64 @@
               </svg>
             </div>
             <span class="icon-label">Messenger</span>
+          </button>
+
+          <!-- Activador -->
+          <button
+            v-if="!isPortfolioActivated"
+            class="desktop-icon group absolute"
+            :style="{ transform: `translate(${iconPositions['activador']?.x ?? 15}px, ${iconPositions['activador']?.y ?? 660}px)` }"
+            @mousedown="onIconMouseDown($event, 'activador')"
+            @dblclick="handleIconClick($event, openActivator, true)"
+            @contextmenu.stop.prevent="handleContextMenu($event)"
+          >
+            <div class="icon-bg">
+              <svg viewBox="0 0 32 32" class="w-9 h-9 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                <path d="M4 4h24v24H4z" fill="#f0f0f0" stroke="#555" stroke-width="1.5"/>
+                <path d="M4 4h24v6H4z" fill="#0058e6"/>
+                <path d="M22.2 19.4a5 5 0 1 0-6.9 5.7 5 5 0 0 0 6.9-5.7zm-3.5 3.5a3.5 3.5 0 1 1 0-4.9 3.5 3.5 0 0 1 0 4.9z" fill="#333"/>
+                <path d="M18.7 16.5h-5v2h5zm0 3h-5v2h5z" fill="#333"/>
+              </svg>
+            </div>
+            <span class="icon-label">Activador</span>
+          </button>
+
+          <!-- Info Readme -->
+          <button
+            class="desktop-icon group absolute"
+            :style="{ transform: `translate(${iconPositions['readme']?.x ?? 15}px, ${iconPositions['readme']?.y ?? 580}px)` }"
+            @mousedown="onIconMouseDown($event, 'readme')"
+            @dblclick="handleIconClick($event, openInfoReadme)"
+            @contextmenu.stop.prevent="handleContextMenu($event)"
+          >
+            <div class="icon-bg">
+              <svg viewBox="0 0 32 32" class="w-9 h-9 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                <circle cx="16" cy="16" r="13" fill="#3b82f6" stroke="#1e3a8a" stroke-width="1.5"/>
+                <text x="16" y="23" font-family="Times New Roman, serif" font-size="24" font-weight="bold" fill="white" text-anchor="middle" font-style="italic">i</text>
+              </svg>
+            </div>
+            <span class="icon-label">Información</span>
+          </button>
+
+          <!-- Buscaminas -->
+          <button
+            class="desktop-icon group absolute"
+            :style="{ transform: `translate(${iconPositions['buscaminas']?.x ?? 96}px, ${iconPositions['buscaminas']?.y ?? 16}px)` }"
+            @mousedown="onIconMouseDown($event, 'buscaminas')"
+            @dblclick="handleIconClick($event, () => openWindow('buscaminas'))"
+            @contextmenu.stop.prevent="handleContextMenu($event)"
+          >
+            <div class="icon-bg">
+              <svg viewBox="0 0 32 32" class="w-9 h-9 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                <rect x="2" y="2" width="28" height="28" fill="#c0c0c0" stroke="#fff" stroke-width="2"/>
+                <path d="M4 28V4h24" stroke="#808080" stroke-width="2" fill="none"/>
+                <circle cx="16" cy="16" r="8" fill="#000"/>
+                <path d="M12 12l8 8m0-8l-8 8" stroke="#000" stroke-width="2"/>
+                <path d="M16 6v4m0 12v4m-10-10h4m12 0h4m-14-7l3 3m8 8l3 3m0-14l-3 3m-8 8l-3 3" stroke="#000" stroke-width="2"/>
+                <circle cx="13" cy="13" r="2" fill="#fff"/>
+              </svg>
+            </div>
+            <span class="icon-label">Buscaminas</span>
           </button>
         </div>
 
@@ -183,7 +241,7 @@
           />
         </div>
 
-        <!-- Mi PC -->
+        <!-- Mi PC (Unified File Explorer) -->
         <div
           v-if="isMyPcOpen && !isMyPcMinimized"
           class="absolute inset-0 pointer-events-none"
@@ -192,24 +250,15 @@
         >
           <MyPcExplorer
             class="pointer-events-auto"
+            :initial-path="myPcInitialPath"
             @close="handleMyPcClose"
             @minimize="handleMyPcMinimize"
             @maximize="handleMyPcMaximize"
             @open-my-docs="openWindow('explorador')"
+            @navigate-to="(id) => { openWindow(id); handleMyPcClose(); }"
+            @open-wmp="openWmp"
           />
         </div>
-
-        <!-- Explorador (Mis documentos) -->
-        <MyDocsExplorer
-          v-if="isExplorerOpen && !isExplorerMinimized"
-          class="absolute inset-0 pointer-events-none"
-          :style="{ zIndex: getWindowZIndex('explorer') }"
-          @mousedown="activateWindow('explorer')"
-          @close="handleExplorerClose"
-          @minimize="handleExplorerMinimize"
-          @open-music="openMusic"
-          @open-pictures="openPictureExplorer"
-        />
 
         <!-- Code Studio -->
         <CodeStudio
@@ -243,28 +292,16 @@
           @minimize="handleXpBrowserMinimize"
         />
 
-        <!-- Carpeta de Música -->
-        <MusicPlayerWindow
-          v-if="isMusicOpen"
-          v-show="!isMusicMinimized"
-          class="absolute inset-0 pointer-events-none"
-          :style="{ zIndex: getWindowZIndex('music') || 34 }"
-          @mousedown="activateWindow('music')"
-          @close="handleMusicClose"
-          @minimize="handleMusicMinimize"
-          @open-wmp="openWmp"
-        />
-
-        <!-- Ventana Reproductor WMP -->
-        <WmpWindow
-          v-if="isWmpOpen"
-          v-show="!isWmpMinimized"
-          class="absolute inset-0 pointer-events-none"
-          :style="{ zIndex: getWindowZIndex('wmp') || 38 }"
-          @mousedown="activateWindow('wmp')"
-          @close="handleWmpClose"
-          @minimize="handleWmpMinimize"
-        />
+       <!-- Ventana Reproductor WMP -->
+<WmpWindow
+  v-if="isWmpOpen"
+  v-show="!isWmpMinimized"
+  class="absolute inset-0 pointer-events-none"
+  :style="{ zIndex: getWindowZIndex('wmp') }"
+  @mousedown="activateWindow('wmp')"
+  @close="handleWmpClose"
+  @minimize="handleWmpMinimize"
+/>
 
         <!-- Papelera de Reciclaje -->
         <PapeleraExplorer
@@ -287,25 +324,54 @@
           @minimize="handleMessengerMinimize"
         />
 
-        <!-- Picture Explorer (Imágenes) -->
-        <MyPictureExplorer
-          v-if="isPictureExplorerOpen && !isPictureExplorerMinimized"
-          class="absolute inset-0 pointer-events-none"
-          :style="{ zIndex: getWindowZIndex('picture-explorer') || 37 }"
-          @mousedown="activateWindow('picture-explorer')"
-          @close="handlePictureExplorerClose"
-          @minimize="handlePictureExplorerMinimize"
+        <!-- Info Readme Window -->
+        <InfoReadme
+          v-if="isInfoReadmeOpen"
+          v-show="!isInfoReadmeMinimized"
+          :style="{ zIndex: getWindowZIndex('info-readme') || 40 }"
+          @mousedown="activateWindow('info-readme')"
+          @close="handleInfoReadmeClose"
+          @minimize="handleInfoReadmeMinimize"
+        />
+
+        <!-- Activator Window -->
+        <Activator
+          v-if="isActivatorOpen"
+          v-show="!isActivatorMinimized"
+          :style="{ zIndex: getWindowZIndex('activator') || 41 }"
+          @mousedown="activateWindow('activator')"
+          @close="handleActivatorClose"
+          @minimize="handleActivatorMinimize"
+          @activated="handlePortfolioActivated"
         />
 
         <!-- Marca de agua de Activación -->
-        <div class="absolute bottom-6 right-6 z-[9999] pointer-events-none select-none text-right font-sans">
-          <p class="text-xl md:text-2xl text-white/50 font-normal tracking-wide drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
-            Activar Portafolio
-          </p>
-          <p class="text-xs md:text-sm text-white/50 drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)] mt-1">
-            Contacta con el administrador para activar Portafolio.
-          </p>
-        </div>
+        <template v-if="!isPortfolioActivated">
+          <div class="absolute bottom-6 right-6 z-[9999] pointer-events-none select-none text-right font-sans">
+            <p class="text-xl md:text-2xl text-white/50 font-normal tracking-wide drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
+              Activar Portafolio
+            </p>
+            <p class="text-xs md:text-sm text-white/50 drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)] mt-1">
+              Contacta con el administrador para activar Portafolio.
+            </p>
+          </div>
+        </template>
+
+        <!-- Alerta de Activación -->
+        <ActivationAlert
+          v-if="showActivationAlert"
+          @close="closeActivationAlert"
+        />
+
+        <!-- Buscaminas Window -->
+        <GameBuscaminas
+          v-if="isBuscaminasOpen"
+          v-show="!isBuscaminasMinimized"
+          :style="{ zIndex: getWindowZIndex('buscaminas') || 42 }"
+          @mousedown="activateWindow('buscaminas')"
+          @close="handleBuscaminasClose"
+          @minimize="handleBuscaminasMinimize"
+        />
       </div>
 
       <!-- BARRA DE TAREAS -->
@@ -517,6 +583,58 @@
             </svg>
             <span class="truncate">PowerShell</span>
           </button>
+
+          <!-- Info Readme -->
+          <button
+            v-if="isInfoReadmeOpen"
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm border text-[11px] md:text-xs shadow-[0_1px_3px_rgba(0,0,0,0.7)] max-w-[130px] md:max-w-[160px]"
+            :class="isInfoReadmeMinimized
+              ? 'bg-slate-700 border-slate-500 text-slate-200'
+              : 'bg-slate-300/90 border-slate-100 text-slate-900'"
+            @click="toggleInfoReadmeFromTaskbar"
+          >
+            <svg viewBox="0 0 32 32" class="w-4 h-4 shrink-0 drop-shadow-sm">
+              <circle cx="16" cy="16" r="13" fill="#3b82f6" stroke="#1e3a8a" stroke-width="1.5"/>
+              <text x="16" y="23" font-family="Times New Roman, serif" font-size="24" font-weight="bold" fill="white" text-anchor="middle" font-style="italic">i</text>
+            </svg>
+            <span class="truncate">Información</span>
+          </button>
+
+          <!-- Activador -->
+          <button
+            v-if="isActivatorOpen"
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm border text-[11px] md:text-xs shadow-[0_1px_3px_rgba(0,0,0,0.7)] max-w-[130px] md:max-w-[160px]"
+            :class="isActivatorMinimized
+              ? 'bg-slate-700 border-slate-500 text-slate-200'
+              : 'bg-slate-300/90 border-slate-100 text-slate-900'"
+            @click="toggleActivatorFromTaskbar"
+          >
+            <svg viewBox="0 0 32 32" class="w-4 h-4 shrink-0 drop-shadow-sm">
+              <path d="M4 4h24v24H4z" fill="#f0f0f0" stroke="#555" stroke-width="1.5"/>
+              <path d="M4 4h24v6H4z" fill="#0058e6"/>
+              <path d="M22.2 19.4a5 5 0 1 0-6.9 5.7 5 5 0 0 0 6.9-5.7zm-3.5 3.5a3.5 3.5 0 1 1 0-4.9 3.5 3.5 0 0 1 0 4.9z" fill="#333"/>
+              <path d="M18.7 16.5h-5v2h5zm0 3h-5v2h5z" fill="#333"/>
+            </svg>
+            <span class="truncate">Activador</span>
+          </button>
+
+          <!-- Buscaminas -->
+          <button
+            v-if="isBuscaminasOpen"
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm border text-[11px] md:text-xs shadow-[0_1px_3px_rgba(0,0,0,0.7)] max-w-[130px] md:max-w-[160px]"
+            :class="isBuscaminasMinimized
+              ? 'bg-slate-700 border-slate-500 text-slate-200'
+              : 'bg-slate-300/90 border-slate-100 text-slate-900'"
+            @click="toggleBuscaminasFromTaskbar"
+          >
+            <svg viewBox="0 0 32 32" class="w-4 h-4 shrink-0 drop-shadow-sm">
+                <rect x="2" y="2" width="28" height="28" fill="#c0c0c0" stroke="#fff" stroke-width="2"/>
+                <path d="M4 28V4h24" stroke="#808080" stroke-width="2" fill="none"/>
+                <circle cx="16" cy="16" r="8" fill="#000"/>
+                <path d="M12 12l8 8m0-8l-8 8" stroke="#000" stroke-width="2"/>
+            </svg>
+            <span class="truncate">Buscaminas</span>
+          </button>
         </div>
 
         <!-- Reloj -->
@@ -583,15 +701,12 @@
 </template>
 
 <script setup>
-import { onMounted, watch, ref } from 'vue';
 import TerminalHero from '../TerminalHero/TerminalHero.vue';
 import MyPcExplorer from '../MyPcExplorer/MyPcExplorer.vue';
-import MyDocsExplorer from '../MyDocsExplorer/MyDocsExplorer.vue';
 import CodeStudio from '../CodeStudio/CodeStudio.vue';
 import BrowserWindow from '../BrowserWindow/BrowserWindow.vue';
 import XpBrowser from '../XpBrowser/XpBrowser.vue';
 import WmpWindow from '../WmpWindow/WmpWindow.vue';
-import MusicPlayerWindow from '../MusicPlayerWindow/MusicPlayerWindow.vue';
 import StartMenu from '../StartMenu/StartMenu.vue';
 import ShutdownScreen from '../ShutdownScreen/ShutdownScreen.vue';
 import PowerOffScreen from '../PowerOffScreen/PowerOffScreen.vue';
@@ -599,314 +714,36 @@ import BootLoadingScreen from '../BootLoadingScreen/BootLoadingScreen.vue';
 import LockScreen from '../LockScreen/LockScreen.vue';
 import PapeleraExplorer from '../PapeleraExplorer/PapeleraExplorer.vue';
 import MessengerWindow from '../MessengerWindow/MessengerWindow.vue';
-import MyPictureExplorer from '../MyPictureExplorer/MyPictureExplorer.vue';
 import RestartConfirmDialog from '../RestartConfirmDialog/RestartConfirmDialog.vue';
+import InfoReadme from '../InfoReadme/InfoReadme.vue';
+import Activator from '../Activador/Activator.vue';
+import ActivationAlert from '../ActivationAlert/ActivationAlert.vue';
+import GameBuscaminas from '../GameBuscaminas/GameBuscaminas.vue';
 
 import { useXpDesktop } from '../../composables/XpDesktop/useXpDesktop';
 import '../../styles/XpDesktop/XpDesktop.css';
 
 const {
-  timeText,
-  powerState,
-  isLocked,
-  showRestartConfirm,
-  browserHtml,
-  windowOrder,
-  activateWindow,
-  getWindowZIndex,
-  isMyPcOpen,
-  isMyPcMinimized,
-  hasContinuedToExplorer,
-  isExplorerOpen,
-  isExplorerMinimized,
-  isCodeOpen,
-  isCodeMinimized,
-  isBrowserOpen,
-  isBrowserMinimized,
-  isXpBrowserOpen,
-  isXpBrowserMinimized,
-  isMusicOpen,
-  isMusicMinimized,
-  isMessengerOpen,
-  isMessengerMinimized,
-  handleStartOpenMyPc,
-  handleLock,
-  handleRestart,
-  cancelRestart,
-  confirmRestart,
-  handleShutdown,
-  handlePowerOn,
-  handleUnlock,
-  handleMyPcClose,
-  handleMyPcMinimize,
-  handleMyPcMaximize,
-  toggleMyPcFromTaskbar,
-  goToExplorer,
-  openExplorer,
-  handleExplorerClose,
-  handleExplorerMinimize,
-  toggleExplorerFromTaskbar,
-  openCode,
-  handleCodeClose,
-  handleCodeMinimize,
-  toggleCodeFromTaskbar,
-  openBrowserWithHtml,
-  handleBrowserClose,
-  handleBrowserMinimize,
-  toggleBrowserFromTaskbar,
-  handleXpBrowserClose,
-  handleXpBrowserMinimize,
-  toggleXpBrowserFromTaskbar,
-  handleFirefoxIconClick,
-  openMusic,
-  handleMusicClose,
-  handleMusicMinimize,
-  toggleMusicFromTaskbar,
-  openMessenger,
-  handleMessengerClose,
-  handleMessengerMinimize,
-  toggleMessengerFromTaskbar,
-  iconPositions,
-  onIconMouseDown,
-  handleIconClick,
-  openWindow
+  timeText, powerState, isLocked, showRestartConfirm, browserHtml, myPcInitialPath, windowOrder,
+  activateWindow, getWindowZIndex,
+  isMyPcOpen, isMyPcMinimized, hasContinuedToExplorer, isExplorerOpen, isExplorerMinimized,
+  isCodeOpen, isCodeMinimized, isBrowserOpen, isBrowserMinimized, isXpBrowserOpen, isXpBrowserMinimized,
+  isMusicOpen, isMusicMinimized, isMessengerOpen, isMessengerMinimized,
+  isPapeleraOpen, isPapeleraMinimized, isPictureExplorerOpen, isPictureExplorerMinimized,
+  isWmpOpen, isWmpMinimized, isPowerShellOpen, isPowerShellMinimized,
+  isInfoReadmeOpen, isInfoReadmeMinimized, isActivatorOpen, isActivatorMinimized, isPortfolioActivated, showActivationAlert,
+  isBuscaminasOpen, isBuscaminasMinimized,
+  contextMenu, customBackground, bgInput,
+  handleStartOpenMyPc, handleLock, handleRestart, cancelRestart, confirmRestart, handleShutdown, handlePowerOn, handleUnlock,
+  handleMyPcClose, handleMyPcMinimize, handleMyPcMaximize, toggleMyPcFromTaskbar, goToExplorer, openExplorer, handleExplorerClose, handleExplorerMinimize, toggleExplorerFromTaskbar, openCode, handleCodeClose, handleCodeMinimize, toggleCodeFromTaskbar, openBrowserWithHtml, handleBrowserClose, handleBrowserMinimize, toggleBrowserFromTaskbar, handleXpBrowserClose, handleXpBrowserMinimize, toggleXpBrowserFromTaskbar, handleFirefoxIconClick, openMusic, handleMusicClose, handleMusicMinimize, toggleMusicFromTaskbar, openMessenger, handleMessengerClose, handleMessengerMinimize, toggleMessengerFromTaskbar,
+  openPapelera, handlePapeleraClose, handlePapeleraMinimize, togglePapeleraFromTaskbar,
+  openPictureExplorer, handlePictureExplorerClose, handlePictureExplorerMinimize, togglePictureExplorerFromTaskbar,
+  openWmp, handleWmpClose, handleWmpMinimize, toggleWmpFromTaskbar,
+  openPowerShell, handlePowerShellClose, handlePowerShellMinimize, togglePowerShellFromTaskbar,
+  openInfoReadme, handleInfoReadmeClose, handleInfoReadmeMinimize, toggleInfoReadmeFromTaskbar,
+  openActivator, handleActivatorClose, handleActivatorMinimize, toggleActivatorFromTaskbar, handlePortfolioActivated, closeActivationAlert,
+  openBuscaminas, handleBuscaminasClose, handleBuscaminasMinimize, toggleBuscaminasFromTaskbar,
+  handleContextMenu, handleDesktopContextMenu, closeContextMenu, triggerBackgroundUpload, resetBackground, onBackgroundSelected, handleDelete,
+  iconPositions, onIconMouseDown, handleIconClick, openWindow
 } = useXpDesktop();
-
-const contextMenu = ref({ visible: false, x: 0, y: 0, type: 'desktop' });
-const customBackground = ref(null);
-const bgInput = ref(null);
-
-const handleContextMenu = (e) => {
-  contextMenu.value = {
-    visible: true,
-    x: e.clientX,
-    y: e.clientY,
-    type: 'icon'
-  };
-};
-
-const handleDesktopContextMenu = (e) => {
-  contextMenu.value = {
-    visible: true,
-    x: e.clientX,
-    y: e.clientY,
-    type: 'desktop'
-  };
-};
-
-const triggerBackgroundUpload = () => {
-  closeContextMenu();
-  bgInput.value?.click();
-};
-
-const resetBackground = () => {
-  closeContextMenu();
-  customBackground.value = null;
-  localStorage.removeItem('xp-desktop-bg');
-};
-
-const onBackgroundSelected = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (evt) => {
-    const result = evt.target.result;
-    try {
-      localStorage.setItem('xp-desktop-bg', result);
-      customBackground.value = result;
-    } catch (err) {
-      alert('La imagen es demasiado pesada para guardarse en la memoria local (límite aprox. 5MB). Por favor, intenta con otra de menor tamaño.');
-    }
-  };
-  reader.readAsDataURL(file);
-  e.target.value = '';
-};
-
-const handleDelete = () => {
-  alert('No se puede eliminar este acceso directo');
-  contextMenu.value.visible = false;
-};
-
-const closeContextMenu = () => {
-  contextMenu.value.visible = false;
-};
-
-const isPapeleraOpen = ref(false);
-const isPapeleraMinimized = ref(false);
-
-const openPapelera = () => {
-  isPapeleraOpen.value = true;
-  isPapeleraMinimized.value = false;
-  activateWindow('papelera');
-};
-const handlePapeleraClose = () => { isPapeleraOpen.value = false; };
-const handlePapeleraMinimize = () => { isPapeleraMinimized.value = true; };
-const togglePapeleraFromTaskbar = () => {
-  if (isPapeleraMinimized.value) { isPapeleraMinimized.value = false; activateWindow('papelera'); }
-  else { isPapeleraMinimized.value = true; }
-};
-
-const isPictureExplorerOpen = ref(false);
-const isPictureExplorerMinimized = ref(false);
-
-const openPictureExplorer = () => {
-  isPictureExplorerOpen.value = true;
-  isPictureExplorerMinimized.value = false;
-  activateWindow('picture-explorer');
-};
-const handlePictureExplorerClose = () => { isPictureExplorerOpen.value = false; };
-const handlePictureExplorerMinimize = () => { isPictureExplorerMinimized.value = true; };
-const togglePictureExplorerFromTaskbar = () => {
-  if (isPictureExplorerMinimized.value) { isPictureExplorerMinimized.value = false; activateWindow('picture-explorer'); }
-  else { isPictureExplorerMinimized.value = true; }
-};
-
-const isWmpOpen = ref(false);
-const isWmpMinimized = ref(false);
-
-const openWmp = () => {
-  isWmpOpen.value = true;
-  isWmpMinimized.value = false;
-  activateWindow('wmp');
-};
-const handleWmpClose = () => { isWmpOpen.value = false; };
-const handleWmpMinimize = () => { isWmpMinimized.value = true; };
-const toggleWmpFromTaskbar = () => {
-  if (isWmpMinimized.value) { isWmpMinimized.value = false; activateWindow('wmp'); }
-  else { isWmpMinimized.value = true; }
-};
-
-const isPowerShellOpen = ref(false);
-const isPowerShellMinimized = ref(false);
-
-const openPowerShell = () => {
-  isPowerShellOpen.value = true;
-  isPowerShellMinimized.value = false;
-  activateWindow('powershell');
-};
-const handlePowerShellClose = () => { isPowerShellOpen.value = false; };
-const handlePowerShellMinimize = () => { isPowerShellMinimized.value = true; };
-const togglePowerShellFromTaskbar = () => {
-  if (isPowerShellMinimized.value) { isPowerShellMinimized.value = false; activateWindow('powershell'); }
-  else { isPowerShellMinimized.value = true; }
-};
-
-onMounted(() => {
-  if (!iconPositions.value['music']) {
-    iconPositions.value['music'] = { x: 15, y: 420 };
-  }
-
-  customBackground.value = localStorage.getItem('xp-desktop-bg');
-
-  const savedIcons = localStorage.getItem('xp-desktop-icons');
-  if (savedIcons) {
-    try {
-      const parsed = JSON.parse(savedIcons);
-      for (const key in parsed) {
-        if (iconPositions.value[key]) {
-          iconPositions.value[key].x = parsed[key].x;
-          iconPositions.value[key].y = parsed[key].y;
-        }
-      }
-    } catch (e) {}
-  }
-
-  // Recuperar si ya abrimos Mi PC y pasamos la terminal
-  if (localStorage.getItem('xp-has-visited-explorer') === 'true') {
-    hasContinuedToExplorer.value = true;
-  }
-
-  window.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.key.toLowerCase() === 'l') {
-      e.preventDefault();
-      handleLock();
-    }
-  });
-
-  const hasVisited = localStorage.getItem('xp-has-visited');
-  if (!hasVisited) {
-    localStorage.setItem('xp-has-visited', 'true');
-  } else {
-    const savedPower = localStorage.getItem('xp-power-state');
-    const savedLocked = localStorage.getItem('xp-is-locked');
-
-    if (savedPower === 'on') {
-      powerState.value = 'on'; 
-      if (savedLocked === 'false') {
-        isLocked.value = false;
-        
-        const savedWins = localStorage.getItem('xp-open-windows');
-        if (savedWins) {
-          try {
-            const wins = JSON.parse(savedWins);
-            wins.forEach(w => {
-              // Soportamos el formato antiguo (string) y el nuevo (objeto)
-              const id = typeof w === 'string' ? w : w.id;
-              const isMin = typeof w === 'string' ? false : w.minimized;
-
-              if (id === 'papelera') openPapelera();
-              else if (id === 'powershell') openPowerShell();
-              else if (id === 'firefox') handleFirefoxIconClick();
-              else if (id === 'picture-explorer') openPictureExplorer();
-              else if (id === 'wmp') openWmp();
-              else openWindow(id);
-
-              if (isMin) {
-                if (id === 'mi-pc') handleMyPcMinimize();
-                else if (id === 'explorador') handleExplorerMinimize();
-                else if (id === 'code') handleCodeMinimize();
-                else if (id === 'firefox') handleBrowserMinimize();
-                else if (id === 'xp-browser') handleXpBrowserMinimize();
-                else if (id === 'music') handleMusicMinimize();
-                else if (id === 'wmp') handleWmpMinimize();
-                else if (id === 'papelera') handlePapeleraMinimize();
-                else if (id === 'messenger') handleMessengerMinimize();
-                else if (id === 'powershell') handlePowerShellMinimize();
-                else if (id === 'picture-explorer') handlePictureExplorerMinimize();
-              }
-            });
-          } catch(e) {}
-        }
-      } else {
-        isLocked.value = true;
-      }
-    }
-  }
-});
-
-watch(iconPositions, (newPos) => {
-  localStorage.setItem('xp-desktop-icons', JSON.stringify(newPos));
-}, { deep: true });
-
-watch(hasContinuedToExplorer, (val) => {
-  if (val) {
-    localStorage.setItem('xp-has-visited-explorer', 'true');
-  }
-});
-
-watch([
-  powerState, isLocked, 
-  isMyPcOpen, isExplorerOpen, isCodeOpen, isBrowserOpen, isXpBrowserOpen, isMusicOpen, isPapeleraOpen, isPowerShellOpen, isPictureExplorerOpen, isWmpOpen, isMessengerOpen,
-  isMyPcMinimized, isExplorerMinimized, isCodeMinimized, isBrowserMinimized, isXpBrowserMinimized, isMusicMinimized, isPapeleraMinimized, isPowerShellMinimized, isPictureExplorerMinimized, isWmpMinimized, isMessengerMinimized
-], () => {
-  localStorage.setItem('xp-power-state', powerState.value);
-  localStorage.setItem('xp-is-locked', isLocked.value.toString());
-
-  if (!isLocked.value && powerState.value === 'on') {
-    const wins = [];
-    if (isMyPcOpen.value) wins.push({ id: 'mi-pc', minimized: isMyPcMinimized.value });
-    if (isExplorerOpen.value) wins.push({ id: 'explorador', minimized: isExplorerMinimized.value });
-    if (isCodeOpen.value) wins.push({ id: 'code', minimized: isCodeMinimized.value });
-    if (isBrowserOpen.value) wins.push({ id: 'firefox', minimized: isBrowserMinimized.value }); 
-    if (isXpBrowserOpen.value) wins.push({ id: 'xp-browser', minimized: isXpBrowserMinimized.value });
-    if (isMusicOpen.value) wins.push({ id: 'music', minimized: isMusicMinimized.value });
-    if (isWmpOpen.value) wins.push({ id: 'wmp', minimized: isWmpMinimized.value });
-    if (isPapeleraOpen.value) wins.push({ id: 'papelera', minimized: isPapeleraMinimized.value });
-    if (isMessengerOpen.value) wins.push({ id: 'messenger', minimized: isMessengerMinimized.value });
-    if (isPowerShellOpen.value) wins.push({ id: 'powershell', minimized: isPowerShellMinimized.value });
-    if (isPictureExplorerOpen.value) wins.push({ id: 'picture-explorer', minimized: isPictureExplorerMinimized.value });
-    localStorage.setItem('xp-open-windows', JSON.stringify(wins));
-  }
-}, { deep: true });
-
 </script>
